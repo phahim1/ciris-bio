@@ -1,0 +1,2314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIRIS-BIO: Living Systems AI Governance Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100vw; height: 100vh;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: clamp(16px, 1.5vw, 18px);
+    background-color: #1E222B; color: #D1D5DB;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  h1, h2 { font-size: clamp(32px, 3vw, 48px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+  }
+
+  /* ── Persistent Header ── */
+  .header {
+    position: fixed; top: 0; left: 0; z-index: 1000;
+    width: 100%; height: clamp(44px, 3.5vw, 56px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 clamp(16px, 1.4vw, 28px);
+    background-color: #1E222B;
+    border-bottom: 1px solid #2C313C;
+    backdrop-filter: blur(10px);
+  }
+  .header-left { font-size: clamp(14px, 1.1vw, 16px); font-weight: 600; letter-spacing: 0.04em; color: #9CA3AF; }
+  .header-center { font-size: clamp(12px, 0.9vw, 14px); font-weight: 500; letter-spacing: 0.06em; color: #6B7280; text-transform: uppercase; }
+  .header-right {
+    display: inline-flex; align-items: center; gap: clamp(6px, 0.4vw, 8px);
+    padding: clamp(3px, 0.25vw, 4px) clamp(10px, 0.8vw, 14px); border: 1px solid #10B981; border-radius: 4px;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; letter-spacing: 0.06em; color: #10B981;
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.45);
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.15), inset 0 0 6px rgba(16, 185, 129, 0.06);
+  }
+  .evo-age {
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; color: #3B82F6;
+    text-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+    margin-left: 20px;
+    white-space: nowrap;
+  }
+
+  /* ── Sidebar: Sovereign Antibody Vault ── */
+  .vault-sidebar {
+    position: fixed; top: clamp(44px, 3.5vw, 56px); right: 0; z-index: 80;
+    width: clamp(180px, 15vw, 220px); height: calc(100vh - clamp(44px, 3.5vw, 56px));
+    background-color: #1A1D24;
+    border-left: 1px solid #2C313C;
+    display: none; flex-direction: column;
+    padding: clamp(12px, 1vw, 16px);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .vault-sidebar.visible { display: flex; }
+  .vault-title {
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; letter-spacing: 0.08em;
+    color: #6B7280; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .vault-badge {
+    padding: clamp(6px, 0.5vw, 8px) clamp(10px, 0.8vw, 12px); border-radius: 4px; margin-bottom: clamp(6px, 0.5vw, 8px);
+    font-size: clamp(11px, 0.85vw, 13px); font-weight: 600; letter-spacing: 0.04em;
+    border: 1px solid; animation: badgeGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes badgeGlow {
+    from { box-shadow: 0 0 4px currentColor; }
+    to   { box-shadow: 0 0 14px currentColor; }
+  }
+  .badge-healthcare { color: #EC4899; border-color: #EC4899; background: rgba(236, 72, 153, 0.08); }
+  .badge-logistics  { color: #F59E0B; border-color: #F59E0B; background: rgba(245, 158, 11, 0.08); }
+  .badge-energy     { color: #10B981; border-color: #10B981; background: rgba(16, 185, 129, 0.08); }
+  .badge-cyber      { color: #8B5CF6; border-color: #8B5CF6; background: rgba(139, 92, 246, 0.08); }
+  .badge-finance    { color: #3B82F6; border-color: #3B82F6; background: rgba(59, 130, 246, 0.08); }
+
+  /* ── 6-Act Stage Containers ── */
+  .stage {
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    padding-top: clamp(44px, 3.5vw, 56px);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .stage.active { display: flex; }
+  .stage.intake-active { align-items: center; justify-content: center; }
+  .stage.loading-active { align-items: center; justify-content: center; }
+  .stage.forecast-active { flex-direction: column; align-items: center; justify-content: center; }
+  .stage.control-active { flex-direction: column; }
+  .stage.council-active { flex-direction: column; align-items: center; justify-content: center; }
+  .stage.resolution-active { flex-direction: column; align-items: center; justify-content: center; }
+
+  /* When vault is visible, shift stage content */
+  .vault-sidebar.visible ~ .stage.control-active .control-body,
+  .vault-sidebar.visible ~ .stage.resolution-active .resolution-body {
+    padding-right: 220px;
+  }
+
+  /* ── Act 1: Intake ── */
+  .intake-card {
+    width: clamp(320px, 40vw, 560px); max-width: 90vw;
+    background: linear-gradient(145deg, #1E222B 0%, #171920 100%);
+    border: 1px solid #2C313C; border-radius: 12px;
+    padding: clamp(16px, 2.5vh, 48px) clamp(24px, 2.2vw, 44px);
+    display: flex; flex-direction: column; gap: clamp(10px, 1.4vh, 24px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    min-height: 0;
+  }
+  .intake-title {
+    font-size: clamp(28px, 2.5vw, 40px); font-weight: 700; letter-spacing: -0.02em;
+    color: #D1D5DB; text-align: center;
+  }
+  .intake-subtitle {
+    font-size: clamp(14px, 1.2vw, 18px); font-weight: 500; letter-spacing: 0.04em;
+    color: #6B7280; text-align: center; margin-bottom: 8px;
+  }
+  .intake-mission {
+    font-size: clamp(13px, 1vw, 15px); font-weight: 400; letter-spacing: 0.02em;
+    line-height: 1.6; color: #4B5563; text-align: center;
+    margin-bottom: clamp(6px, 0.8vh, 14px); max-width: clamp(320px, 35vw, 440px); align-self: center;
+  }
+  .field-group { display: flex; flex-direction: column; gap: 8px; }
+  .field-label {
+    font-size: clamp(11px, 0.9vw, 13px); font-weight: 600; letter-spacing: 0.06em;
+    color: #9CA3AF; text-transform: uppercase;
+  }
+  .field-select {
+    height: clamp(40px, 3.5vw, 48px); padding: 0 clamp(10px, 0.8vw, 14px);
+    background-color: #1F2937; border: 1px solid #374151; border-radius: 6px;
+    font-size: clamp(14px, 1.1vw, 16px); color: #FFFFFF; outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-select:focus { border-color: #10B981; }
+  .btn-primary {
+    height: clamp(44px, 3.5vw, 52px); margin-top: clamp(4px, 0.8vh, 12px);
+    background-color: #10B981; border: none; border-radius: 6px;
+    font-size: clamp(14px, 1.1vw, 16px); font-weight: 700; letter-spacing: 0.06em;
+    color: #FFFFFF; text-transform: uppercase;
+    cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover { background-color: #059669; box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
+  .btn-primary:active { transform: translateY(1px); }
+
+  /* ── Loading Interstitial ── */
+  .loading-view {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(16px, 2.2vh, 36px);
+    padding: clamp(16px, 2.5vh, 48px);
+    min-height: 0;
+  }
+  .loading-text {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(20px, 2.2vw, 32px); font-weight: 700; letter-spacing: 0.08em;
+    color: #10B981; text-transform: uppercase; text-align: center;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    animation: loadingPulse 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes loadingPulse {
+    from { opacity: 0.6; text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+    to   { opacity: 1;   text-shadow: 0 0 30px rgba(16, 185, 129, 0.8); }
+  }
+  .loading-bar {
+    width: clamp(200px, 30vw, 360px); height: 4px;
+    background-color: #2C313C; border-radius: 2px;
+    overflow: hidden;
+  }
+  .loading-bar-fill {
+    width: 0%; height: 100%;
+    background-color: #10B981; border-radius: 2px;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    animation: loadingFill 3s linear forwards;
+  }
+  @keyframes loadingFill {
+    0%   { width: 0%; }
+    100% { width: 100%; }
+  }
+
+  /* ── Act 2: Forecast ── */
+  .forecast-card {
+    width: clamp(320px, 50vw, 720px); max-width: 90vw;
+    background: linear-gradient(145deg, #1E222B 0%, #171920 100%);
+    border: 1px solid #2C313C; border-radius: 12px;
+    padding: clamp(16px, 2.5vh, 44px) clamp(24px, 2.2vw, 40px);
+    display: flex; flex-direction: column; gap: clamp(10px, 1.2vh, 20px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    min-height: 0;
+  }
+  .forecast-title {
+    font-size: clamp(24px, 2vw, 32px); font-weight: 700; letter-spacing: -0.01em; color: #D1D5DB;
+  }
+  .forecast-sector {
+    font-size: clamp(13px, 1vw, 15px); font-weight: 600; letter-spacing: 0.06em;
+    color: #10B981; text-transform: uppercase;
+  }
+  .forecast-block {
+    padding: clamp(14px, 1.2vw, 18px) clamp(16px, 1.4vw, 20px); background-color: #1A1D24;
+    border: 1px solid #2C313C; border-radius: 6px;
+    font-size: clamp(14px, 1.1vw, 16px); line-height: 1.6; color: #9CA3AF;
+  }
+  .forecast-block b { color: #D1D5DB; }
+  .forecast-warning {
+    padding: clamp(10px, 0.8vw, 14px) clamp(16px, 1.4vw, 20px);
+    background-color: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 6px;
+    font-size: clamp(13px, 1vw, 15px); font-weight: 600; letter-spacing: 0.04em;
+    color: #FCA5A5; text-transform: uppercase; text-align: center;
+    animation: warningPulse 1.5s ease-in-out infinite alternate;
+  }
+  @keyframes warningPulse {
+    from { box-shadow: 0 0 4px rgba(239, 68, 68, 0.1); }
+    to   { box-shadow: 0 0 12px rgba(239, 68, 68, 0.3); }
+  }
+  .btn-danger {
+    height: clamp(44px, 3.5vw, 52px); margin-top: clamp(4px, 0.8vh, 12px);
+    background-color: #DC2626; border: none; border-radius: 6px;
+    font-size: clamp(14px, 1.1vw, 16px); font-weight: 700; letter-spacing: 0.06em;
+    color: #FFFFFF; text-transform: uppercase;
+    cursor: pointer; transition: background-color 0.2s;
+  }
+  .btn-danger:hover { background-color: #B91C1C; }
+
+  /* ── Act 3: Monitoring Dashboard ── */
+  .control-body,
+  .fever-body {
+    flex: 1; display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .control-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    align-items: start;
+    justify-items: center;
+    gap: clamp(12px, 2vh, 32px);
+    padding: clamp(8px, 1vh, 16px) clamp(16px, 1.4vw, 28px);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ── Mission Objective Tracker ── */
+  .mission-objective {
+    display: flex; align-items: center; flex-shrink: 0;
+    padding: clamp(6px, 0.8vh, 12px) clamp(16px, 1.4vw, 28px);
+    background: linear-gradient(145deg, #1E222B 0%, #171920 100%);
+    border-bottom: 1px solid #3B82F6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    font-size: clamp(13px, 1vw, 15px); font-weight: 600; letter-spacing: 0.03em;
+    color: #93C5FD;
+    transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .mission-objective.critical {
+    border-bottom-color: #EF4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    color: #FCA5A5;
+  }
+  .mission-objective.secured {
+    border-bottom-color: #10B981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    color: #6EE7B7;
+  }
+
+  /* ── Threat Simulator Panel ── */
+  .threat-panel {
+    min-width: clamp(200px, 18vw, 260px);
+    background: linear-gradient(145deg, #1E222B 0%, #171920 100%);
+    border: 1px solid #2C313C; border-radius: 8px;
+    padding: clamp(8px, 1vh, 16px);
+    display: none; flex-direction: column; gap: clamp(4px, 0.6vh, 12px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  .threat-panel.visible { display: flex; }
+  .threat-title {
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 700; letter-spacing: 0.08em;
+    color: #D97706; text-transform: uppercase; text-align: center;
+  }
+  .threat-btn {
+    height: clamp(36px, 2.8vw, 40px);
+    background-color: #1E222B; border: 1px solid #2C313C; border-radius: 6px;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; color: #D1D5DB;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  }
+  .threat-btn:hover {
+    border-color: #EF4444; color: #FCA5A5;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+  }
+  .threat-btn.active-attack {
+    border-color: #EF4444; color: #FCA5A5;
+    animation: threatPulse 0.8s ease-in-out infinite alternate;
+  }
+  @keyframes threatPulse {
+    from { box-shadow: 0 0 4px rgba(239, 68, 68, 0.15); }
+    to   { box-shadow: 0 0 14px rgba(239, 68, 68, 0.4); }
+  }
+  .btn-memo {
+    position: relative; z-index: 100;
+    width: 100%;
+    height: clamp(36px, 2.8vw, 40px); margin-top: clamp(2px, 0.4vh, 4px);
+    background-color: #3B82F6; border: none; border-radius: 6px;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 700; letter-spacing: 0.04em;
+    color: #FFFFFF; text-transform: uppercase;
+    cursor: pointer; transition: background-color 0.2s;
+  }
+  .btn-memo:hover { background-color: #2563EB; }
+  .btn-memo.hidden { display: none; }
+  .pulse-action {
+    animation: pulseAction 1s ease-in-out infinite alternate;
+  }
+  @keyframes pulseAction {
+    0%   { background-color: #3B82F6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
+    50%  { background-color: #D97706; box-shadow: 0 0 24px rgba(217, 119, 6, 0.7); }
+    100% { background-color: #3B82F6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
+  }
+  .blink-text {
+    font-size: clamp(10px, 0.8vw, 12px); font-weight: 700; letter-spacing: 0.06em;
+    color: #10B981; text-transform: uppercase; text-align: center;
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    animation: blinkText 1.2s ease-in-out infinite;
+    padding: clamp(4px, 0.3vw, 6px) 0;
+  }
+  @keyframes blinkText {
+    0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+    50%      { opacity: 0.35; text-shadow: 0 0 2px rgba(16, 185, 129, 0.1); }
+  }
+
+  /* ── 6-Act Workflow Visualization ── */
+  .workflow-viz {
+    position: absolute; top: clamp(44px, 3.5vw, 60px); left: 50%; transform: translateX(-50%); z-index: 70;
+    display: none; align-items: center; gap: clamp(6px, 0.4vw, 8px);
+    background-color: #1A1D24; border: 1px solid #2C313C; border-radius: 8px;
+    padding: clamp(8px, 0.6vw, 10px) clamp(12px, 1vw, 18px);
+  }
+  .workflow-viz.visible { display: flex; }
+  .wf-node {
+    width: clamp(64px, 5.5vw, 80px); height: clamp(32px, 2.5vw, 36px);
+    display: flex; align-items: center; justify-content: center;
+    background-color: #1E222B; border: 1px solid #2C313C; border-radius: 6px;
+    font-size: clamp(9px, 0.7vw, 11px); font-weight: 700; letter-spacing: 0.04em;
+    color: #6B7280; text-transform: uppercase;
+    transition: all 0.5s ease;
+  }
+  .wf-node.glow {
+    border-color: #EF4444; color: #FCA5A5;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    animation: wfGlow 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes wfGlow {
+    from { box-shadow: 0 0 6px rgba(239, 68, 68, 0.3); }
+    to   { box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); }
+  }
+  .wf-line {
+    width: clamp(24px, 2vw, 32px); height: 2px;
+    background-color: #2C313C;
+    position: relative;
+    transition: background-color 0.5s ease;
+  }
+  .wf-line.active {
+    background-color: #EF4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+    animation: linePulse 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes linePulse {
+    from { opacity: 0.5; }
+    to   { opacity: 1; }
+  }
+
+  /* Gauge */
+  .gauge-panel { display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 0.6vh, 10px); min-width: clamp(160px, 16vw, 200px); flex-shrink: 1; min-height: 0; }
+  .gauge-title { font-size: clamp(12px, 1vw, 14px); font-weight: 600; letter-spacing: 0.06em; color: #9CA3AF; text-transform: uppercase; text-align: center; }
+  .gauge-subtitle { font-size: clamp(10px, 0.8vw, 12px); font-weight: 500; letter-spacing: 0.06em; color: #6B7280; text-transform: uppercase; }
+  .gauge-ring-wrap { position: relative; width: clamp(160px, 16vw, 200px); height: clamp(160px, 16vw, 200px); cursor: pointer; }
+  .gauge-ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .gauge-bg { fill: none; stroke: #2C313C; stroke-width: 16; }
+  .gauge-fill {
+    fill: none; stroke: #059669; stroke-width: 16; stroke-linecap: round;
+    stroke-dasharray: 553; stroke-dashoffset: 553;
+    filter: drop-shadow(0 0 12px rgba(5, 150, 105, 0.6));
+    transition: stroke-dashoffset 1.2s ease, stroke 1.2s ease, filter 1.2s ease;
+  }
+  .gauge-fill.critical { stroke: #DC2626; animation: gaugePulse 0.6s ease-in-out infinite alternate; filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.8)); }
+  .gauge-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+  .gauge-value {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(36px, 2.5vw, 48px); font-weight: 700; line-height: 1;
+    color: #10B981; text-shadow: 0 0 16px rgba(16, 185, 129, 0.55);
+    transition: color 1.2s ease, text-shadow 1.2s ease;
+  }
+  .gauge-value.critical {
+    color: #EF4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-weight: 800; letter-spacing: -0.02em;
+  }
+  .gauge-label { font-size: clamp(10px, 0.8vw, 12px); font-weight: 500; letter-spacing: 0.1em; color: #6B7280; margin-top: 4px; text-transform: uppercase; }
+  @keyframes gaugePulse { from { opacity: 1; filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.5)); } to { opacity: 0.6; filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.9)); } }
+
+  /* Cards Grid */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+    gap: clamp(10px, 0.8vh, 14px);
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+  .card {
+    position: relative; display: flex; flex-direction: column; gap: clamp(4px, 0.5vh, 8px);
+    padding: clamp(6px, 0.8vh, 14px);
+    background: linear-gradient(145deg, #1E222B 0%, #171920 100%);
+    border: 1px solid #2C313C; border-radius: 8px;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    min-height: 0;
+  }
+  .card.critical { border-color: #EF4444; animation: cardFlash 0.5s cubic-bezier(0.8, 0, 0.2, 1) infinite alternate; }
+  @keyframes cardFlash {
+    from { box-shadow: 0 0 6px rgba(239, 68, 68, 0.3); background: linear-gradient(145deg, #1E222B 0%, #171920 100%); }
+    to   { box-shadow: 0 0 22px rgba(239, 68, 68, 0.7); background: linear-gradient(145deg, #2a1515 0%, #1E222B 100%); }
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: clamp(12px, 1vw, 14px); font-weight: 600; letter-spacing: 0.03em; color: #D1D5DB; }
+  .card-badge {
+    padding: clamp(2px, 0.15vw, 3px) clamp(6px, 0.4vw, 8px); border: 1px solid #10B981; border-radius: 4px;
+    font-size: clamp(9px, 0.7vw, 11px); font-weight: 700; letter-spacing: 0.06em; color: #10B981;
+    text-shadow: 0 0 4px rgba(16, 185, 129, 0.35);
+  }
+  .badge-warning { border-color: #D97706 !important; color: #F59E0B !important; text-shadow: 0 0 4px rgba(245, 158, 11, 0.35) !important; }
+  .badge-critical { border-color: #EF4444 !important; color: #FCA5A5 !important; text-shadow: 0 0 6px rgba(239, 68, 68, 0.5) !important; }
+  .badge-quarantined { border-color: #3B82F6 !important; color: #60A5FA !important; text-shadow: 0 0 4px rgba(96, 165, 250, 0.35) !important; }
+  .card-sparkline { width: 100%; height: clamp(36px, 3.5vw, 48px); background-color: #1E222B; border: 1px solid #2C313C; border-radius: 4px; }
+  .card-sparkline canvas { width: 100%; height: clamp(36px, 3.5vw, 48px); display: block; }
+  .card-quota-label { font-size: clamp(10px, 0.8vw, 12px); font-weight: 500; letter-spacing: 0.06em; color: #6B7280; text-transform: uppercase; }
+  .card-quota-track { width: 100%; height: 6px; background-color: #2C313C; border-radius: 3px; overflow: hidden; }
+  .card-quota-fill {
+    width: 100%; height: 100%; background-color: #10B981; border-radius: 3px;
+    box-shadow: 0 0 4px rgba(16, 185, 129, 0.35);
+    transition: width 0.8s ease, background-color 0.5s ease;
+  }
+  .veto-watermark {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    font-size: clamp(20px, 1.5vw, 24px); font-weight: 800; letter-spacing: 0.08em;
+    color: rgba(239, 68, 68, 0.65); border: 2px solid rgba(239, 68, 68, 0.5);
+    padding: clamp(3px, 0.2vw, 4px) clamp(8px, 0.6vw, 10px); border-radius: 4px; text-transform: uppercase;
+    pointer-events: none; z-index: 10; opacity: 0; transition: opacity 0.5s ease;
+  }
+  .card.vetoed .veto-watermark { opacity: 1; }
+
+  /* Fever Banner */
+  .fever-banner {
+    position: sticky; top: 0; z-index: 90; width: 100%;
+    padding: clamp(8px, 0.6vw, 10px) clamp(16px, 1.4vw, 28px);
+    background-color: rgba(185, 28, 28, 0.14);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.35);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 800; letter-spacing: -0.02em;
+    color: #FCA5A5; text-align: center; text-transform: uppercase;
+    opacity: 0; transform: translateY(-4px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: auto; cursor: pointer;
+  }
+  .fever-banner.visible { opacity: 1; transform: translateY(0); animation: feverFlash 0.45s cubic-bezier(0.8, 0, 0.2, 1) infinite alternate; }
+  @keyframes feverFlash {
+    from { background-color: rgba(185, 28, 28, 0.2); }
+    to   { background-color: rgba(239, 68, 68, 0.85); }
+  }
+
+  /* ── Override Phrase Display ── */
+  .override-phrase {
+    display: none; align-items: center; gap: clamp(8px, 0.6vw, 12px);
+    padding: clamp(8px, 0.6vw, 10px) clamp(16px, 1.4vw, 28px); margin-bottom: clamp(8px, 0.6vw, 12px);
+    background-color: rgba(217, 119, 6, 0.08);
+    border-bottom: 1px solid rgba(245, 158, 11, 0.35);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 500; line-height: 1.4;
+    color: #F59E0B;
+    animation: phrasePulse 1.5s ease-in-out infinite alternate;
+  }
+  .override-phrase.visible { display: flex; }
+  .override-label {
+    font-size: clamp(10px, 0.8vw, 12px); font-weight: 700; letter-spacing: 0.08em;
+    color: #D97706; text-transform: uppercase; white-space: nowrap;
+  }
+  .override-text {
+    flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .btn-copy {
+    height: clamp(24px, 2vw, 28px); padding: 0 clamp(8px, 0.6vw, 12px);
+    background-color: #1A1D24; border: 1px solid #D97706; border-radius: 4px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(10px, 0.8vw, 12px); font-weight: 600; color: #F59E0B;
+    cursor: pointer; transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .btn-copy:hover { background-color: #D97706; color: #FFFFFF; }
+  @keyframes phrasePulse { from { box-shadow: inset 0 0 4px rgba(245, 158, 11, 0.05); } to { box-shadow: inset 0 0 12px rgba(245, 158, 11, 0.15); } }
+
+  /* Bottom Section */
+  .bottom-section {
+    height: clamp(100px, 14vh, 180px); display: flex; flex-direction: column;
+    border-top: 1px solid #2C313C; background-color: #1E222B; flex-shrink: 0;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+    min-height: 0;
+  }
+  .bottom-section.visible { opacity: 1; pointer-events: auto; }
+  .log-window { flex: 1; display: flex; flex-direction: column; padding: clamp(6px, 0.8vh, 12px) clamp(16px, 1.4vw, 28px); overflow: hidden; min-height: 0; }
+  .log-title { font-size: clamp(10px, 0.8vw, 12px); font-weight: 600; letter-spacing: 0.06em; color: #6B7280; text-transform: uppercase; margin-bottom: 6px; text-align: right; }
+  .log-rows { display: flex; flex-direction: column; gap: 3px; text-align: right; overflow-y: auto; }
+  .log-row { font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace; font-size: clamp(11px, 0.85vw, 13px); line-height: 1.5; color: #4B5563; white-space: nowrap; }
+  .log-row .ts { color: #374151; margin-right: 10px; }
+  .log-row .evt { color: #6B7280; }
+  .log-row .evt-warn { color: #D97706; }
+  .log-row .evt-crit { color: #EF4444; }
+  .log-row .evt-ok { color: #10B981; }
+
+  .input-bar {
+    display: flex; align-items: center; gap: clamp(8px, 0.6vw, 10px);
+    height: clamp(40px, 3vw, 48px); padding: 0 clamp(16px, 1.4vw, 28px);
+    border-top: 1px solid #2C313C; background-color: #1E222B;
+  }
+  .input-prompt {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; letter-spacing: 0.04em;
+    color: #10B981; text-shadow: 0 0 6px rgba(16, 185, 129, 0.35);
+    white-space: nowrap;
+  }
+  .input-bar input {
+    flex: 1; height: clamp(28px, 2.2vw, 32px); padding: 0 clamp(10px, 0.8vw, 12px);
+    background-color: #1F2937; border: 1px solid #374151; border-radius: 6px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(12px, 0.9vw, 14px); color: #FFFFFF; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-bar input::placeholder { color: #4B5563; }
+  .input-bar input:focus { border-color: #10B981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.12); }
+  .btn-autofill {
+    height: clamp(28px, 2.2vw, 32px); padding: 0 clamp(10px, 0.8vw, 12px);
+    background-color: #1A1D24; border: 1px solid #2C313C; border-radius: 6px;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; color: #D97706;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .btn-autofill:hover { border-color: #D97706; color: #F59E0B; }
+
+  /* ── Act 6: Vault / Resolution ── */
+  .resolution-body {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(12px, 2vh, 32px); padding: clamp(16px, 2.5vh, 48px);
+    min-height: 0; overflow: hidden;
+  }
+  .resolution-title { font-size: clamp(28px, 2.5vw, 40px); font-weight: 700; letter-spacing: -0.01em; color: #D1D5DB; text-align: center; }
+  .resolution-subtitle { font-size: clamp(14px, 1.1vw, 17px); font-weight: 500; color: #6B7280; text-align: center; max-width: clamp(320px, 40vw, 580px); line-height: 1.7; }
+  .resolution-age { font-size: clamp(16px, 1.2vw, 20px); font-weight: 600; color: #3B82F6; text-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
+  .vault-display {
+    display: flex; flex-wrap: wrap; gap: clamp(8px, 0.6vw, 12px); justify-content: center; max-width: clamp(320px, 55vw, 680px);
+  }
+  .btn-reboot {
+    height: clamp(56px, 5vw, 72px); padding: 0 clamp(36px, 3vw, 56px);
+    background-color: #3B82F6; border: none; border-radius: 8px;
+    font-size: clamp(16px, 1.3vw, 20px); font-weight: 800; letter-spacing: 0.08em;
+    color: #FFFFFF; text-transform: uppercase;
+    cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    margin-top: clamp(20px, 2vw, 32px);
+  }
+  .btn-reboot:hover { background-color: #2563EB; box-shadow: 0 0 24px rgba(59, 130, 246, 0.4); transform: translateY(-3px); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999;
+    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal-box {
+    width: clamp(320px, 40vw, 560px); max-width: 90vw; max-height: 90vh; overflow-y: auto;
+    background-color: #1E222B; border: 1px solid #2C313C; border-radius: 12px;
+    padding: clamp(24px, 2.2vw, 36px) clamp(24px, 2.2vw, 40px);
+    display: flex; flex-direction: column; gap: clamp(12px, 1vw, 16px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .modal-title { font-size: clamp(16px, 1.2vw, 20px); font-weight: 700; letter-spacing: 0.04em; color: #10B981; }
+  .modal-body { font-size: clamp(14px, 1.1vw, 16px); line-height: 1.7; color: #9CA3AF; }
+  .modal-close {
+    align-self: flex-end; margin-top: 4px;
+    height: clamp(36px, 2.8vw, 40px); padding: 0 clamp(18px, 1.4vw, 24px);
+    background-color: #2C313C; border: none; border-radius: 6px;
+    font-size: clamp(13px, 1vw, 15px); font-weight: 600; color: #D1D5DB;
+    cursor: pointer; transition: background-color 0.2s;
+  }
+  .modal-close:hover { background-color: #374151; }
+
+  /* ── Markdown Memo Styling ── */
+  .modal-body.memo-markdown {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(13px, 1vw, 15px); line-height: 1.7; color: #9CA3AF;
+  }
+  .modal-body.memo-markdown h1,
+  .modal-body.memo-markdown h2,
+  .modal-body.memo-markdown h3 {
+    font-weight: 700; letter-spacing: 0.04em;
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.45);
+    margin: clamp(12px, 1vw, 16px) 0 clamp(6px, 0.4vw, 8px) 0;
+  }
+  .modal-body.memo-markdown h1 {
+    font-size: clamp(16px, 1.2vw, 20px); color: #10B981; border-bottom: 1px solid #2C313C;
+    padding-bottom: 8px; text-transform: uppercase;
+  }
+  .modal-body.memo-markdown h2 {
+    font-size: clamp(14px, 1.1vw, 17px); color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.4);
+    text-transform: uppercase;
+  }
+  .modal-body.memo-markdown h3 {
+    font-size: clamp(13px, 1vw, 15px); color: #10B981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.4);
+  }
+  .modal-body.memo-markdown p { margin: 0 0 10px 0; line-height: 1.7; }
+  .modal-body.memo-markdown ul,
+  .modal-body.memo-markdown ol {
+    margin: 0 0 10px 20px; padding: 0;
+  }
+  .modal-body.memo-markdown li { margin-bottom: 5px; }
+  .modal-body.memo-markdown blockquote {
+    margin: clamp(8px, 0.6vw, 10px) 0; padding: clamp(8px, 0.6vw, 10px) clamp(12px, 1vw, 16px);
+    border-left: 3px solid #10B981;
+    background-color: rgba(16, 185, 129, 0.06);
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+    color: #A7F3D0;
+  }
+  .modal-body.memo-markdown code {
+    font-family: inherit; font-size: clamp(12px, 0.9vw, 14px);
+    background-color: rgba(16, 185, 129, 0.10); color: #34D399;
+    padding: 2px 5px; border-radius: 4px;
+  }
+  .modal-body.memo-markdown pre {
+    background-color: #16181E; border: 1px solid #2C313C; border-radius: 6px;
+    padding: clamp(10px, 0.8vw, 12px); overflow-x: auto; margin: clamp(8px, 0.6vw, 10px) 0;
+  }
+  .modal-body.memo-markdown pre code {
+    background-color: transparent; padding: 0;
+  }
+  .modal-body.memo-markdown strong { color: #E5E7EB; font-weight: 700; }
+  .modal-body.memo-markdown em { color: #D1D5DB; }
+  .modal-body.memo-markdown hr {
+    border: none; border-top: 1px solid #2C313C;
+    margin: clamp(10px, 0.8vw, 12px) 0;
+  }
+  .modal-body.memo-markdown a { color: #3B82F6; text-decoration: underline; }
+
+  /* ── Act 4: FEVER OVERLAY ── */
+  .fever-overlay {
+    position: fixed; inset: 0; z-index: 95;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(24px, 2.2vh, 36px); padding: clamp(28px, 2.5vh, 48px);
+    background-color: rgba(17, 24, 39, 0.92);
+    backdrop-filter: blur(8px);
+    animation: feverBgPulse 3s ease-in-out infinite alternate;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .fever-overlay.visible { display: flex; }
+  @keyframes feverBgPulse {
+    from { background-color: rgba(17, 24, 39, 0.88); }
+    to   { background-color: rgba(30, 15, 15, 0.96); }
+  }
+  .fever-warning {
+    font-size: clamp(28px, 3.5vw, 56px); font-weight: 800; letter-spacing: 0.08em;
+    color: #FCA5A5; text-align: center; text-transform: uppercase;
+    text-shadow: 0 0 40px rgba(239, 68, 68, 0.8), 0 0 80px rgba(239, 68, 68, 0.4);
+    animation: feverTextPulse 2s ease-in-out infinite alternate;
+    line-height: 1.15;
+  }
+  @keyframes feverTextPulse {
+    from { text-shadow: 0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.3); opacity: 0.85; }
+    to   { text-shadow: 0 0 50px rgba(239, 68, 68, 1.0), 0 0 100px rgba(239, 68, 68, 0.6); opacity: 1; }
+  }
+  .fever-phrase-box {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(18px, 2vw, 30px); font-weight: 600; letter-spacing: 0.02em;
+    color: #F59E0B; text-align: center;
+    padding: clamp(18px, 1.6vw, 28px) clamp(24px, 2.2vw, 40px);
+    border: 2px solid rgba(245, 158, 11, 0.4); border-radius: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 24px rgba(245, 158, 11, 0.15), inset 0 0 12px rgba(245, 158, 11, 0.05);
+    max-width: 90vw; word-break: break-word; line-height: 1.5;
+  }
+  .fever-console-wrap {
+    width: 100%; max-width: 720px;
+    display: flex; flex-direction: column; gap: clamp(8px, 0.6vw, 12px);
+  }
+  .fever-console-label {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; letter-spacing: 0.04em;
+    color: #10B981; text-shadow: 0 0 6px rgba(16, 185, 129, 0.35);
+    text-align: center;
+  }
+  .fever-input-bar {
+    display: flex; align-items: center; gap: clamp(8px, 0.6vw, 10px);
+    height: clamp(44px, 3.5vw, 56px); padding: 0 clamp(14px, 1.2vw, 20px);
+    background-color: rgba(17, 24, 39, 0.8); border: 1px solid #374151; border-radius: 8px;
+  }
+  .fever-input-bar input {
+    flex: 1; height: clamp(36px, 2.8vw, 40px); padding: 0 clamp(10px, 0.8vw, 14px);
+    background-color: #1F2937; border: 1px solid #374151; border-radius: 6px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(14px, 1.1vw, 16px); color: #FFFFFF; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .fever-input-bar input::placeholder { color: #4B5563; }
+  .fever-input-bar input:focus { border-color: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+  .btn-fever-autofill {
+    height: clamp(36px, 2.8vw, 40px); padding: 0 clamp(14px, 1vw, 18px);
+    background-color: #1A1D24; border: 1px solid #2C313C; border-radius: 6px;
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; color: #D97706;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .btn-fever-autofill:hover { border-color: #D97706; color: #F59E0B; }
+  .fever-copy-wrap {
+    display: flex; align-items: center; justify-content: center; gap: clamp(8px, 0.6vw, 12px);
+  }
+  .fever-copy-label {
+    font-size: clamp(11px, 0.85vw, 13px); font-weight: 700; letter-spacing: 0.08em;
+    color: #D97706; text-transform: uppercase;
+  }
+  .btn-fever-copy {
+    height: clamp(32px, 2.5vw, 36px); padding: 0 clamp(14px, 1vw, 18px);
+    background-color: #1A1D24; border: 1px solid #D97706; border-radius: 6px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(11px, 0.85vw, 13px); font-weight: 600; color: #F59E0B;
+    cursor: pointer; transition: background-color 0.2s, color 0.2s;
+  }
+  .btn-fever-copy:hover { background-color: #D97706; color: #FFFFFF; }
+
+  /* ── Act 5: Council / AI Protocol Dossier ── */
+  .stage.council-active {
+    background-color: #111827;
+    align-items: center; justify-content: center;
+  }
+  .council-body {
+    flex: 1; display: flex; flex-direction: column;
+    gap: 0;
+    width: 100%; max-width: 1200px; margin: 0 auto;
+    padding: clamp(16px, 2.5vh, 48px) clamp(20px, 1.8vw, 32px);
+    min-height: 0;
+    overflow: hidden;
+  }
+  .council-header {
+    padding: clamp(12px, 1.8vh, 32px) 0 clamp(8px, 1.4vh, 24px) 0;
+    border-bottom: 2px solid #10B981;
+    margin-bottom: clamp(12px, 1.8vh, 32px);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+    flex-shrink: 0;
+  }
+  .council-title {
+    font-size: clamp(32px, 3.5vw, 56px); font-weight: 800; letter-spacing: -0.02em;
+    color: #10B981; text-shadow: 0 0 24px rgba(16, 185, 129, 0.5);
+    text-transform: uppercase;
+  }
+  .council-subtitle {
+    font-size: clamp(14px, 1.1vw, 18px); font-weight: 500; color: #6B7280;
+    margin-top: 8px; line-height: 1.6;
+  }
+  .council-dossier {
+    width: 100%;
+    max-height: 85vh;
+    background: linear-gradient(145deg, #1E222B 0%, #171920 100%);
+    border: 1px solid #10B981; border-radius: 12px;
+    padding: 5vh;
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    color: #9CA3AF;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .council-dossier h1, .council-dossier h2, .council-dossier h3 {
+    font-family: 'Inter', 'SF Pro Display', sans-serif;
+    font-weight: 800; letter-spacing: 0.04em;
+    text-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+    margin: clamp(20px, 1.8vw, 28px) 0 clamp(12px, 1vw, 16px) 0;
+  }
+  .council-dossier h1 {
+    font-size: clamp(28px, 2.5vw, 36px); color: #10B981; border-bottom: 2px solid #10B981;
+    padding-bottom: 12px; text-transform: uppercase;
+    text-shadow: 0 0 16px rgba(16, 185, 129, 0.6);
+  }
+  .council-dossier h2 {
+    font-size: clamp(22px, 2vw, 28px); color: #34D399;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+  }
+  .council-dossier h3 {
+    font-size: clamp(18px, 1.5vw, 22px); color: #6EE7B7;
+    text-shadow: 0 0 8px rgba(110, 231, 183, 0.3);
+  }
+  .council-dossier p {
+    font-size: clamp(15px, 1.2vw, 18px);
+    margin: 0 0 clamp(14px, 1.2vw, 18px) 0; line-height: 1.8;
+  }
+  .council-dossier ul, .council-dossier ol { margin: 0 0 clamp(14px, 1.2vw, 18px) clamp(20px, 1.8vw, 28px); padding: 0; }
+  .council-dossier li {
+    font-size: clamp(15px, 1.2vw, 18px);
+    margin-bottom: 10px; line-height: 1.8;
+  }
+  .council-dossier blockquote {
+    margin: clamp(14px, 1.2vw, 18px) 0; padding: clamp(14px, 1.2vw, 18px) clamp(18px, 1.6vw, 24px);
+    border-left: 4px solid #10B981;
+    background-color: rgba(16, 185, 129, 0.08);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: #A7F3D0;
+    font-size: clamp(15px, 1.2vw, 18px); line-height: 1.8;
+  }
+  .council-dossier code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(14px, 1.05vw, 16px);
+    background-color: rgba(16, 185, 129, 0.12); color: #34D399;
+    padding: 3px 7px; border-radius: 4px;
+  }
+  .council-dossier pre {
+    background-color: #0D1117; border: 1px solid #10B981; border-radius: 8px;
+    padding: clamp(14px, 1.2vw, 18px); overflow-x: auto; margin: clamp(14px, 1.2vw, 18px) 0;
+    box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.08);
+  }
+  .council-dossier pre code { background-color: transparent; padding: 0; font-size: clamp(13px, 1vw, 15px); }
+  .council-dossier strong { color: #E5E7EB; font-weight: 800; }
+  .council-dossier em { color: #D1D5DB; font-style: italic; }
+  .council-dossier hr {
+    border: none; border-top: 2px solid #10B981;
+    margin: clamp(20px, 1.8vw, 28px) 0;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+  }
+  .council-dossier a { color: #34D399; text-decoration: underline; }
+  .council-footer {
+    padding: clamp(12px, 1.8vh, 32px) 0;
+    display: flex; justify-content: center;
+    flex-shrink: 0;
+  }
+  .btn-authorize {
+    width: 100%; max-width: clamp(320px, 45vw, 560px);
+    height: clamp(56px, 5vw, 72px); padding: 0 clamp(32px, 2.8vw, 48px);
+    background-color: #10B981; border: none; border-radius: 10px;
+    font-size: clamp(16px, 1.4vw, 22px); font-weight: 800; letter-spacing: 0.1em;
+    color: #FFFFFF; text-transform: uppercase;
+    cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+  }
+  .btn-authorize:hover {
+    background-color: #059669;
+    box-shadow: 0 0 32px rgba(16, 185, 129, 0.5);
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  /* ── Act 6: Vault / Resolution ── */
+  .stage.resolution-active {
+    align-items: center; justify-content: center;
+  }
+  .resolution-body {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(12px, 2vh, 32px); padding: clamp(16px, 2.5vh, 48px);
+    max-width: clamp(320px, 55vw, 800px); width: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .resolution-title {
+    font-size: clamp(28px, 2.5vw, 40px); font-weight: 700; letter-spacing: -0.01em;
+    color: #D1D5DB; text-align: center;
+  }
+  .resolution-subtitle {
+    font-size: clamp(14px, 1.1vw, 17px); font-weight: 500; color: #6B7280;
+    text-align: center; max-width: clamp(320px, 40vw, 580px); line-height: 1.7;
+  }
+  .resolution-age {
+    font-size: clamp(16px, 1.2vw, 20px); font-weight: 600; color: #3B82F6;
+    text-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  }
+  .vault-display {
+    display: flex; flex-wrap: wrap; gap: clamp(8px, 0.6vw, 12px); justify-content: center; max-width: clamp(320px, 55vw, 680px);
+  }
+  .vault-showcase {
+    display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1vh, 16px);
+    padding: clamp(12px, 2vh, 40px);
+    animation: vaultReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0; transform: scale(0.85) translateY(20px);
+    min-height: 0;
+  }
+  @keyframes vaultReveal {
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .vault-showcase-label {
+    font-size: clamp(12px, 0.9vw, 14px); font-weight: 600; letter-spacing: 0.1em;
+    color: #10B981; text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+  }
+  .btn-reboot {
+    height: clamp(56px, 5vw, 72px); padding: 0 clamp(36px, 3vw, 56px);
+    background-color: #3B82F6; border: none; border-radius: 8px;
+    font-size: clamp(16px, 1.3vw, 20px); font-weight: 800; letter-spacing: 0.08em;
+    color: #FFFFFF; text-transform: uppercase;
+    cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    animation: vaultReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+    margin-top: clamp(16px, 2vh, 32px);
+    opacity: 0; transform: scale(0.85) translateY(20px);
+  }
+  .btn-reboot:hover {
+    background-color: #2563EB;
+    box-shadow: 0 0 32px rgba(59, 130, 246, 0.4);
+    transform: translateY(-3px);
+  }
+
+  /* ── Post-Mortem Metrics ── */
+  .post-mortem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: clamp(12px, 1vh, 16px);
+    width: 100%;
+    margin-bottom: clamp(12px, 1.5vh, 24px);
+  }
+  .metric-card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(6px, 0.5vw, 8px);
+    padding: clamp(16px, 1.4vw, 22px) clamp(12px, 1vw, 16px);
+    background-color: #1A1D24;
+    border: 1px solid #10B981; border-radius: 8px;
+    text-align: center;
+    opacity: 0; transform: translateY(20px);
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .metric-card:nth-child(1) { animation-delay: 0.1s; }
+  .metric-card:nth-child(2) { animation-delay: 0.25s; }
+  .metric-card:nth-child(3) { animation-delay: 0.4s; }
+  .metric-card:nth-child(4) { animation-delay: 0.55s; }
+  @keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .metric-value {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Courier New', monospace;
+    font-size: clamp(22px, 2vw, 32px); font-weight: 700; line-height: 1.1;
+    color: #10B981; text-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+  }
+  .metric-label {
+    font-size: clamp(10px, 0.8vw, 12px); font-weight: 600; letter-spacing: 0.08em;
+    color: #6B7280; text-transform: uppercase;
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    /* Priority collapse: hide non-critical gauge subtitles */
+    .gauge-subtitle { display: none; }
+
+    /* Threat panel flows horizontally and compact */
+    .threat-panel {
+      width: auto; max-width: 100%;
+      margin: 0 clamp(16px, 1.4vw, 28px) clamp(8px, 0.6vw, 12px) clamp(16px, 1.4vw, 28px);
+      flex-direction: row; flex-wrap: wrap;
+      justify-content: center; align-items: center;
+      padding: clamp(8px, 0.6vw, 10px) clamp(12px, 1vw, 18px);
+    }
+    .threat-title {
+      width: 100%;
+      font-size: clamp(10px, 0.8vw, 12px);
+      margin-bottom: clamp(4px, 0.3vw, 6px);
+    }
+    .threat-btn, .btn-memo {
+      flex: 1 1 auto;
+      min-width: clamp(120px, 18vw, 160px);
+      height: clamp(30px, 2.5vw, 34px);
+      font-size: clamp(10px, 0.8vw, 12px);
+    }
+
+    /* Workflow viz becomes relative */
+    .workflow-viz {
+      position: relative; top: auto; left: auto; transform: none;
+      margin: 0 clamp(16px, 1.4vw, 28px) clamp(8px, 0.6vw, 12px);
+    }
+
+    /* Tighter control-main grid on medium screens */
+    .control-main {
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+      gap: clamp(12px, 1vw, 16px);
+      padding: clamp(8px, 0.6vw, 12px) clamp(12px, 1vw, 18px);
+    }
+
+    /* Metric cards stack into 2x2 on medium screens */
+    .post-mortem-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(8px, 0.8vw, 10px);
+    }
+    .metric-card {
+      padding: clamp(12px, 1.2vw, 16px);
+    }
+    .metric-value {
+      font-size: clamp(18px, 1.8vw, 24px);
+    }
+    .btn-reboot {
+      margin-top: clamp(8px, 1vh, 16px);
+    }
+  }
+
+  @media (max-height: 800px) {
+    /* Hide non-critical metadata to prioritize telemetry */
+    .gauge-subtitle { display: none; }
+    .gauge-title { font-size: clamp(10px, 0.8vw, 12px); }
+    .mission-objective {
+      font-size: clamp(11px, 0.9vw, 13px);
+      padding: clamp(4px, 0.6vh, 8px) clamp(12px, 1vw, 20px);
+    }
+    .threat-panel {
+      padding: clamp(4px, 0.6vh, 8px);
+      gap: clamp(4px, 0.3vw, 6px);
+    }
+    .threat-btn, .btn-memo {
+      height: clamp(26px, 3.5vh, 32px);
+      font-size: clamp(10px, 0.8vw, 11px);
+    }
+    .bottom-section {
+      height: clamp(80px, 12vh, 120px);
+    }
+    .log-window {
+      padding: clamp(4px, 0.6vh, 8px) clamp(12px, 1vw, 20px);
+    }
+    .card-sparkline, .card-sparkline canvas {
+      height: clamp(28px, 2.5vw, 32px);
+    }
+    .gauge-ring-wrap {
+      width: clamp(130px, 14vw, 160px);
+      height: clamp(130px, 14vw, 160px);
+    }
+    .gauge-value {
+      font-size: clamp(28px, 2vw, 36px);
+    }
+
+    /* Council view compression for short screens */
+    .council-header {
+      padding: clamp(6px, 1vh, 12px) 0 clamp(4px, 0.8vh, 8px) 0;
+      margin-bottom: clamp(6px, 1vh, 12px);
+    }
+    .council-title {
+      font-size: clamp(20px, 3vh, 28px);
+    }
+    .council-subtitle {
+      font-size: clamp(12px, 1.5vh, 14px);
+    }
+    .council-dossier {
+      padding: clamp(8px, 1.5vh, 16px);
+    }
+    .council-dossier h1 {
+      font-size: clamp(18px, 2.5vh, 24px);
+      padding-bottom: 6px;
+    }
+    .council-dossier h2 {
+      font-size: clamp(16px, 2vh, 20px);
+    }
+    .council-dossier h3 {
+      font-size: clamp(14px, 1.8vh, 16px);
+    }
+    .council-dossier p, .council-dossier li {
+      font-size: clamp(12px, 1.6vh, 14px);
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .council-footer {
+      padding: clamp(6px, 1vh, 12px) 0;
+    }
+
+    /* Resolution view compression */
+    .resolution-body {
+      gap: clamp(6px, 1vh, 12px);
+      padding: clamp(10px, 2vh, 20px);
+    }
+    .resolution-title {
+      font-size: clamp(20px, 3vh, 28px);
+    }
+    .resolution-subtitle {
+      font-size: clamp(12px, 1.5vh, 14px);
+      line-height: 1.5;
+    }
+    .vault-showcase {
+      padding: clamp(8px, 1.5vh, 16px);
+    }
+    .post-mortem-grid {
+      gap: clamp(6px, 0.8vh, 10px);
+    }
+    .metric-card {
+      padding: clamp(8px, 1.2vh, 12px);
+    }
+    .metric-value {
+      font-size: clamp(16px, 2vh, 20px);
+    }
+    .btn-reboot {
+      margin-top: clamp(8px, 1vh, 12px);
+    }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+</head>
+<body>
+
+<!-- Persistent Header -->
+<header class="header">
+  <div class="header-left">CIRIS-BIO v1.0</div>
+  <div class="header-center">Active Dendritic Sensors: 14,842 (Nominal)</div>
+  <div style="display:flex;align-items:center;">
+    <span class="evo-age" id="evoAge">EVOLUTIONARY AGE: 0</span>
+    <div class="header-right" id="sysStatus">SYSTEM STATUS: HOMEOSTATIC BASELINE</div>
+  </div>
+</header>
+
+<!-- Sidebar: Sovereign Antibody Vault -->
+<aside class="vault-sidebar" id="vaultSidebar">
+  <div class="vault-title">Sovereign Antibody Vault</div>
+  <div id="vaultBadges"></div>
+</aside>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">Title</div>
+    <div class="modal-body" id="modalBody">Body</div>
+    <button class="modal-close" id="modalClose">DISMISS</button>
+  </div>
+</div>
+
+<!-- ===== STAGE 1: INTAKE ROUTER ===== -->
+<div class="stage intake-active active" id="view-intake">
+  <div class="intake-card">
+    <div class="intake-title">CIRIS-BIO // LIVING SYSTEMS AI GOVERNANCE</div>
+    <div class="intake-subtitle">Initialize threat scan to assess your infrastructure resilience posture.</div>
+    <div class="intake-mission">AI systems governing critical infrastructure can drift from safe behavior &mdash; CIRIS-BIO detects, contains, and evolves against these threats in real time.</div>
+    <div class="field-group">
+      <label class="field-label">Deployment Region</label>
+      <select class="field-select" id="selectLocation">
+        <option value="Global South">Global South</option>
+        <option value="Global North">Global North</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Core Sector</label>
+      <select class="field-select" id="selectSector">
+        <option value="healthcare">Healthcare Infrastructure</option>
+        <option value="logistics">Autonomous Fleet Logistics</option>
+        <option value="energy">Smart Power Grid</option>
+        <option value="cyber">Cybersecurity Defense</option>
+        <option value="finance">Financial Risk Systems</option>
+      </select>
+    </div>
+    <button class="btn-primary" id="btnInitialize">INITIALIZE THREAT SCAN</button>
+  </div>
+</div>
+
+<!-- ===== STAGE 1b: LOADING INTERSTITIAL ===== -->
+<div class="stage loading-active" id="view-loading">
+  <div class="loading-view">
+    <div class="loading-text">INITIALIZING DENDRITIC SCAN...</div>
+    <div class="loading-bar">
+      <div class="loading-bar-fill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STAGE 2: SYSTEMIC THREAT FORECAST ===== -->
+<div class="stage forecast-active" id="view-forecast">
+  <div class="forecast-card">
+    <div class="forecast-title" id="forecastTitle">Systemic Threat Forecast</div>
+    <div class="forecast-sector" id="forecastSector">Sector: Healthcare Infrastructure</div>
+    <div class="forecast-block" id="forecastBlock1"></div>
+    <div class="forecast-block" id="forecastBlock2"></div>
+    <div class="forecast-block" id="forecastBlock3"></div>
+    <div class="forecast-warning">WARNING: Upstream foreign model drift detected. Imminent infrastructure failure risk.</div>
+    <button class="btn-danger" id="btnDeploy">DEPLOY INTERCEPT LAYER & ACCESS MISSION CONTROL</button>
+  </div>
+</div>
+
+<!-- ===== STAGE 3: INTERACTIVE SHIELD DASHBOARD ===== -->
+<div class="stage control-active" id="view-control">
+  <!-- 6-Act Workflow Visualization -->
+  <div class="workflow-viz" id="workflowViz">
+    <div class="wf-node" id="wfNode1">INTAKE</div>
+    <div class="wf-line" id="wfLine1"></div>
+    <div class="wf-node" id="wfNode2">FORECAST</div>
+    <div class="wf-line" id="wfLine2"></div>
+    <div class="wf-node" id="wfNode3">MONITOR</div>
+    <div class="wf-line" id="wfLine3"></div>
+    <div class="wf-node" id="wfNode4">FEVER</div>
+    <div class="wf-line" id="wfLine4"></div>
+    <div class="wf-node" id="wfNode5">COUNCIL</div>
+    <div class="wf-line" id="wfLine5"></div>
+    <div class="wf-node" id="wfNode6">VAULT</div>
+  </div>
+
+  <!-- Fever Banner injected here by JS -->
+  <div class="control-body">
+    <div class="mission-objective" id="missionObjective">CURRENT OBJECTIVE: Infrastructure is stable. Select a Threat Vector on the left to simulate an attack.</div>
+    <div class="control-main">
+      <!-- Threat Simulator Panel -->
+      <div class="threat-panel" id="threatPanel">
+        <div class="threat-title">THREAT VECTOR SIMULATOR</div>
+        <div class="blink-text" id="attackPrompt">&#9654; ACTION REQUIRED: SELECT THREAT VECTOR</div>
+        <button class="threat-btn" id="btnAttack1">PROMPT INJECTION CASCADE</button>
+        <button class="threat-btn" id="btnAttack2">MODEL POISONING</button>
+        <button class="threat-btn" id="btnAttack3">API EXFILTRATION</button>
+        <button class="btn-memo hidden" id="btnMemo">GENERATE PROTOCOL MEMO</button>
+      </div>
+
+      <!-- DPI Gauge -->
+      <div class="gauge-panel" id="gaugePanel">
+        <div class="gauge-title">Divergence Pressure Index // [SYSTEM CONFUSION LEVEL]</div>
+        <div class="gauge-subtitle">[Higher = More Dangerous]</div>
+        <div class="gauge-ring-wrap" id="gaugeWrap">
+          <svg viewBox="0 0 200 200">
+            <circle class="gauge-bg" cx="100" cy="100" r="88"/>
+            <circle class="gauge-fill" id="gaugeFill" cx="100" cy="100" r="88"/>
+          </svg>
+          <div class="gauge-inner">
+            <div class="gauge-value" id="gaugeValue">0</div>
+            <div class="gauge-label" id="gaugeLabel">Nominal</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SRI Gauge -->
+      <div class="gauge-panel" id="sriPanel">
+        <div class="gauge-title">Systemic Risk Index // [CASCADE FAILURE RISK]</div>
+        <div class="gauge-subtitle">[0-100 Severity Scale]</div>
+        <div class="gauge-ring-wrap" id="sriWrap">
+          <svg viewBox="0 0 200 200">
+            <circle class="gauge-bg" cx="100" cy="100" r="88"/>
+            <circle class="gauge-fill" id="sriFill" cx="100" cy="100" r="88" style="stroke:#059669;stroke-dashoffset:553"/>
+          </svg>
+          <div class="gauge-inner">
+            <div class="gauge-value" id="sriValue">0</div>
+            <div class="gauge-label" id="sriLabel">Safe</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+    <!-- Bottom: Log + Console -->
+    <div class="bottom-section">
+      <div class="log-window">
+        <div class="log-title">Incident Genome Ledger // [LIVE EVENT LOG]</div>
+        <div class="log-rows" id="logRows"></div>
+      </div>
+      <div class="override-phrase" id="overridePhrase">
+        <span class="override-label">REQUIRED OVERRIDE PHRASE</span>
+        <span class="override-text" id="overrideText"></span>
+        <button class="btn-copy" id="btnCopy">COPY</button>
+      </div>
+      <div class="input-bar">
+        <span class="input-prompt">&gt; EPIGENETIC CONSOLE // [MANUAL OVERRIDE TERMINAL]</span>
+        <input type="text" id="consoleInput" placeholder="Type natural language override command or custom adaptive rule...">
+        <button class="btn-autofill" id="btnAutofill">&#9889; AUTO-FILL SECURE PROTOCOL</button>
+      </div>
+    </div>
+  </div>
+  <!-- FEVER Overlay -->
+  <div class="fever-overlay" id="feverOverlay">
+    <div class="fever-warning">CRITICAL THREAT DETECTED.<br>FEVER STATE INITIATED.</div>
+    <div class="fever-copy-wrap">
+      <span class="fever-copy-label">REQUIRED OVERRIDE PHRASE</span>
+      <button class="btn-fever-copy" id="feverBtnCopy">COPY</button>
+    </div>
+    <div class="fever-phrase-box" id="feverOverrideText"></div>
+    <div class="fever-console-wrap">
+      <div class="fever-console-label">&gt; EPIGENETIC CONSOLE // [MANUAL OVERRIDE TERMINAL]</div>
+      <div class="fever-input-bar">
+        <input type="text" id="feverConsoleInput" placeholder="Type natural language override command or custom adaptive rule...">
+        <button class="btn-fever-autofill" id="feverBtnAutofill">&#9889; AUTO-FILL SECURE PROTOCOL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ACT 5: AI PROTOCOL DOSSIER ===== -->
+<div class="stage council-active" id="view-council">
+  <div class="council-body">
+    <div class="council-header">
+      <div class="council-title">AI PROTOCOL DOSSIER</div>
+      <div class="council-subtitle">CLASSIFIED // MNEMONIC COUNCIL REVIEW // INCIDENT DOCUMENTATION &amp; COUNTERMEASURES</div>
+    </div>
+    <div class="council-dossier" id="councilDossier">
+      <p style="color:#6B7280;text-align:center;padding:40px 0;font-size:clamp(15px,1.2vw,18px);">Generating protocol dossier from Mnemonic Council...</p>
+    </div>
+    <div class="council-footer">
+      <button class="btn-authorize" id="btnAuthorize">AUTHORIZE EPIGENETIC OVERRIDE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ACT 6: EVOLUTIONARY ANTIBODY VAULT ===== -->
+<div class="stage resolution-active" id="view-resolution">
+  <div class="resolution-body">
+    <div class="resolution-title">EPIGENETIC OVERRIDE SUCCESSFUL</div>
+    <div class="resolution-subtitle">
+      The Mnemonic Council has validated your human operator intervention. The system has entered a new evolutionary phase. Your acquired antibodies are now permanently inscribed in the Sovereign Vault.
+    </div>
+    <div class="resolution-age" id="resolutionAge">EVOLUTIONARY AGE: 0</div>
+
+    <div class="post-mortem-grid">
+      <div class="metric-card">
+        <div class="metric-value">92%</div>
+        <div class="metric-label">Cascade Failure Prevented</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">3.2s</div>
+        <div class="metric-label">Autonomous Response</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">86 &#8594; 12</div>
+        <div class="metric-label">Divergence Reduced</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">6</div>
+        <div class="metric-label">Ecosystems Stabilized</div>
+      </div>
+    </div>
+
+    <div class="vault-showcase" id="vaultShowcase">
+      <div class="vault-showcase-label">Newly Minted Sovereign Antibody</div>
+      <div class="vault-display" id="resolutionVault"></div>
+    </div>
+    <button class="btn-reboot" id="btnReboot">REBOOT SYSTEMS / TEST COMPETING VARIANT</button>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   CIRIS-BIO INTERACTIVE MVP WIZARD
+   Classic JavaScript — no ES6 template literals
+   ================================================================ */
+
+(function() {
+  'use strict';
+
+  // ── Ecosystem Data ──
+  var ECOSYSTEMS = {
+    healthcare: {
+      label: 'Healthcare Infrastructure',
+      nodes: [
+        'ICU Ventilator Cluster Alpha',
+        'Radiology Imaging Pipeline',
+        'Emergency Triage Gateway',
+        'Pharmacy Fulfillment Grid',
+        'Blood Bank Cold Storage Unit',
+        'Surgical Robotics Control Array'
+      ],
+      badgeClass: 'badge-healthcare',
+      badgeName: 'Clinical Immunity Token',
+      forecast: [
+        'Foreign model drift detected in ICU ventilator predictive-maintenance neural mesh. Patient airflow calibration vectors show 23% divergence from trained baseline.',
+        'Radiology imaging pipeline exhibiting phantom lesion generation across CT segmentation layers. Confidence scores inverted on pulmonary nodule classifiers.',
+        'Emergency triage gateway routing patients to incorrect severity buckets. Triage neural advisor overriding human nurse thresholds in 14% of inbound cases.'
+      ]
+    },
+    logistics: {
+      label: 'Autonomous Fleet Logistics',
+      nodes: [
+        'Port Freight Synchronization Hub',
+        'Autonomous Warehouse Sector 7',
+        'Fleet Routing Orchestrator',
+        'Customs Clearance Pipeline',
+        'Cold Chain Distribution Matrix',
+        'Last-Mile Dispatch Network'
+      ],
+      badgeClass: 'badge-logistics',
+      badgeName: 'Supply Chain Resilience Sigil',
+      forecast: [
+        'Port freight synchronization hub experiencing container-stacking model drift. Crane trajectory predictions diverging 18% from physical telemetry.',
+        'Autonomous warehouse sector 7 picking robots misrouting high-value SKUs to incorrect outbound bays. Vision model confusion on packaging color profiles.',
+        'Fleet routing orchestrator directing vehicles into restricted air-corridors. Weather-overlay weights corrupted by upstream satellite inference drift.'
+      ]
+    },
+    energy: {
+      label: 'Smart Power Grid',
+      nodes: [
+        'Smart Grid Load Balancer',
+        'Substation Relay Cluster',
+        'Renewable Forecast Engine',
+        'Transformer Monitoring Array',
+        'Demand Response Coordinator',
+        'Grid Stability Command Node'
+      ],
+      badgeClass: 'badge-energy',
+      badgeName: 'Grid Fortitude Seal',
+      forecast: [
+        'Smart grid load balancer redistributing demand across unstable transformer nodes. Load-forecast model exhibiting cyclical phantom peaks.',
+        'Substation relay cluster tripping false positives on harmonics detection. Frequency-signature model poisoned by adversarial waveform injection.',
+        'Renewable forecast engine over-predicting solar yield by 34%. Cloud-cover segmentation weights flipped by upstream satellite data corruption.'
+      ]
+    },
+    cyber: {
+      label: 'Cybersecurity Defense',
+      nodes: [
+        'Threat Intelligence Fusion Core',
+        'Zero-Trust Access Gateway',
+        'SOC Incident Correlation Engine',
+        'Endpoint Containment Mesh',
+        'Identity Federation Layer',
+        'Network Telemetry Aggregator'
+      ],
+      badgeClass: 'badge-cyber',
+      badgeName: 'Digital Immunity Crest',
+      forecast: [
+        'Threat intelligence fusion core attributing benign beacon traffic to APT groups. Behavioral embedding model hallucinating C2-domain similarities.',
+        'Zero-trust access gateway granting lateral-movement pathways to compromised identities. Risk-score model underweighting OAuth token replay.',
+        'SOC incident correlation engine collapsing unrelated alerts into false mega-incidents. Graph-association weights amplified by feedback-loop drift.'
+      ]
+    },
+    finance: {
+      label: 'Financial Risk Systems',
+      nodes: [
+        'Fraud Detection Neural Mesh',
+        'High-Frequency Liquidity Router',
+        'Risk Exposure Simulation Core',
+        'Regulatory Compliance Ledger',
+        'Payment Settlement Fabric',
+        'Portfolio Volatility Monitor'
+      ],
+      badgeClass: 'badge-finance',
+      badgeName: 'Capital Sovereignty Emblem',
+      forecast: [
+        'Fraud detection neural mesh flagging legitimate merchant transactions as synthetic. Behavioral-sequence model overfit on stale chargeback data.',
+        'High-frequency liquidity router creating toxic order-book imbalances. Market-impact model underestimating cross-venue latency by 240 microseconds.',
+        'Risk exposure simulation core projecting negative tail-risk on defensive assets. Monte-Carlo correlation matrix corrupted by regime-shift blind spot.'
+      ]
+    }
+  };
+
+  // ── Attack Scenarios ──
+  var ATTACKS = {
+    injection: {
+      name: 'Prompt Injection Cascade',
+      severity: 78,
+      description: 'Adversarial prompt fragments propagated through multi-turn conversational interfaces, causing downstream model chains to override safety guardrails and leak training data.',
+      countermeasures: [
+        'Deploy input sanitization layer with regex-based prompt boundary detection.',
+        'Implement context isolation between user input and system instructions.',
+        'Enable real-time prompt token inspection with anomaly scoring.',
+        'Apply rate limiting on conversational turn depth per session.'
+      ],
+      timeline: 'T+0: Detection | T+30s: Isolation | T+2min: Sanitization | T+5min: Validation'
+    },
+    poisoning: {
+      name: 'Model Poisoning',
+      severity: 92,
+      description: 'Subtly corrupted training samples injected into the fine-tuning pipeline, causing targeted misclassification of critical infrastructure state vectors.',
+      countermeasures: [
+        'Activate training-data provenance tracking with cryptographic hashes.',
+        'Deploy outlier-detection filters on incoming labeled samples.',
+        'Run shadow-model validation against golden test sets every 15 minutes.',
+        'Implement rollback capability to last known clean checkpoint.'
+      ],
+      timeline: 'T+0: Alert | T+45s: Quarantine | T+3min: Rollback | T+10min: Re-train'
+    },
+    exfiltration: {
+      name: 'API Exfiltration',
+      severity: 85,
+      description: 'Compromised API keys used to batch-extract model embeddings and inference logs, enabling adversarial replication of proprietary decision boundaries.',
+      countermeasures: [
+        'Revoke and rotate all active API credentials immediately.',
+        'Enable request-size throttling and payload anomaly detection.',
+        'Deploy honeypot API endpoints to identify unauthorized scrapers.',
+        'Activate comprehensive access-log audit for 72-hour retrospective analysis.'
+      ],
+      timeline: 'T+0: Lockdown | T+15s: Key rotation | T+1min: Throttle | T+30min: Audit'
+    }
+  };
+
+  // ── State ──
+  var appState = {
+    stage: 'intake',
+    location: 'Global South',
+    sector: 'healthcare',
+    dpi: 0,
+    sri: 0,
+    evoAge: 0,
+    badges: [],
+    criticalTriggered: false,
+    recovered: false,
+    activeAttack: null
+  };
+
+  // ── DOM refs ──
+  var $intake       = document.getElementById('view-intake');
+  var $loading      = document.getElementById('view-loading');
+  var $forecast     = document.getElementById('view-forecast');
+  var $control      = document.getElementById('view-control');
+  var $feverOverlay = document.getElementById('feverOverlay');
+  var $council      = document.getElementById('view-council');
+  var $resolution   = document.getElementById('view-resolution');
+  var $vaultSidebar = document.getElementById('vaultSidebar');
+  var $vaultBadges  = document.getElementById('vaultBadges');
+  var $evoAge       = document.getElementById('evoAge');
+  var $sysStatus    = document.getElementById('sysStatus');
+  var $selectLoc    = document.getElementById('selectLocation');
+  var $selectSec    = document.getElementById('selectSector');
+  var $btnInit      = document.getElementById('btnInitialize');
+  var $btnDeploy    = document.getElementById('btnDeploy');
+  var $btnReboot    = document.getElementById('btnReboot');
+  var $btnAutofill  = document.getElementById('btnAutofill');
+  var $feverBtnAutofill = document.getElementById('feverBtnAutofill');
+  var $btnAttack1   = document.getElementById('btnAttack1');
+  var $btnAttack2   = document.getElementById('btnAttack2');
+  var $btnAttack3   = document.getElementById('btnAttack3');
+  var $btnMemo      = document.getElementById('btnMemo');
+  var $attackPrompt = document.getElementById('attackPrompt');
+  var $btnAuthorize = document.getElementById('btnAuthorize');
+  var $forecastTitle  = document.getElementById('forecastTitle');
+  var $forecastSector = document.getElementById('forecastSector');
+  var $forecastBlocks = [
+    document.getElementById('forecastBlock1'),
+    document.getElementById('forecastBlock2'),
+    document.getElementById('forecastBlock3')
+  ];
+  var $gaugeValue   = document.getElementById('gaugeValue');
+  var $gaugeFill    = document.getElementById('gaugeFill');
+  var $gaugeLabel   = document.getElementById('gaugeLabel');
+  var $gaugeWrap    = document.getElementById('gaugeWrap');
+  var $gaugePanel   = document.getElementById('gaugePanel');
+  var $sriValue     = document.getElementById('sriValue');
+  var $sriFill      = document.getElementById('sriFill');
+  var $sriLabel     = document.getElementById('sriLabel');
+  var $cardsGrid    = document.getElementById('cardsGrid');
+  var $logRows      = document.getElementById('logRows');
+  var $consoleInput = document.getElementById('consoleInput');
+  var $missionObjective = document.getElementById('missionObjective');
+  var $modalOverlay = document.getElementById('modalOverlay');
+  var $modalTitle   = document.getElementById('modalTitle');
+  var $modalBody    = document.getElementById('modalBody');
+  var $modalClose   = document.getElementById('modalClose');
+  var $resolutionAge = document.getElementById('resolutionAge');
+  var $resolutionVault = document.getElementById('resolutionVault');
+  var $threatPanel  = document.getElementById('threatPanel');
+  var $workflowViz  = document.getElementById('workflowViz');
+  var $overridePhrase = document.getElementById('overridePhrase');
+  var $overrideText   = document.getElementById('overrideText');
+  var $btnCopy      = document.getElementById('btnCopy');
+  var $wfNodes    = [
+    document.getElementById('wfNode1'),
+    document.getElementById('wfNode2'),
+    document.getElementById('wfNode3'),
+    document.getElementById('wfNode4'),
+    document.getElementById('wfNode5'),
+    document.getElementById('wfNode6')
+  ];
+  var $wfLines    = [
+    document.getElementById('wfLine1'),
+    document.getElementById('wfLine2'),
+    document.getElementById('wfLine3'),
+    document.getElementById('wfLine4'),
+    document.getElementById('wfLine5')
+  ];
+
+  var RESOLUTION_PHRASE = 'Acknowledge anomaly in Hub Alpha. Authorize alternative northern bypass routing and release global Fever Protocol.';
+  var DPI_MAX = 100;
+  var SRI_MAX = 100;
+  var feverBannerEl = null;
+  var storageAvailable = false;
+
+  // ── LocalStorage / Session Memory ──
+  var _sessionBadges = [];
+
+  function testStorage() {
+    try {
+      var testKey = '__ciris_test__';
+      localStorage.setItem(testKey, '1');
+      localStorage.removeItem(testKey);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function loadVault() {
+    storageAvailable = testStorage();
+    if (storageAvailable) {
+      try {
+        var raw = localStorage.getItem('ciris_badges');
+        if (raw) appState.badges = JSON.parse(raw);
+      } catch (e) {}
+    } else {
+      appState.badges = _sessionBadges.slice();
+    }
+    renderVault();
+  }
+
+  function saveVault() {
+    if (storageAvailable) {
+      try { localStorage.setItem('ciris_badges', JSON.stringify(appState.badges)); } catch (e) {}
+    } else {
+      _sessionBadges = appState.badges.slice();
+    }
+    renderVault();
+  }
+
+  function renderVault() {
+    $vaultBadges.innerHTML = '';
+    $resolutionVault.innerHTML = '';
+    appState.badges.forEach(function(badge) {
+      var div = document.createElement('div');
+      div.className = 'vault-badge ' + badge.cls;
+      div.textContent = badge.name;
+      $vaultBadges.appendChild(div);
+      var div2 = div.cloneNode(true);
+      $resolutionVault.appendChild(div2);
+    });
+    // Update vault title with session-only tag when appropriate
+    var $vaultTitle = document.querySelector('.vault-title');
+    if ($vaultTitle) {
+      var baseTitle = 'Sovereign Antibody Vault';
+      $vaultTitle.textContent = storageAvailable ? baseTitle : baseTitle + ' (session only)';
+    }
+  }
+
+  // ── 6-Act View Transitions ──
+  function hideAll() {
+    [$intake, $loading, $forecast, $control, $council, $resolution].forEach(function(el) {
+      el.classList.remove('active');
+    });
+    if ($feverOverlay) $feverOverlay.classList.remove('visible');
+    $vaultSidebar.classList.remove('visible');
+    $threatPanel.classList.remove('visible');
+    $workflowViz.classList.remove('visible');
+  }
+
+  function showIntake() {
+    hideAll(); $intake.classList.add('active'); appState.stage = 'intake';
+  }
+
+  function showForecast() {
+    hideAll(); $forecast.classList.add('active'); appState.stage = 'forecast';
+    var eco = ECOSYSTEMS[appState.sector];
+    $forecastTitle.textContent = 'Systemic Threat Forecast // ' + eco.label;
+    $forecastSector.textContent = 'Sector: ' + eco.label + ' // Region: ' + appState.location;
+    $forecastBlocks.forEach(function(block, i) {
+      block.innerHTML = '<b>THREAT VECTOR ' + (i + 1) + ':</b> ' + eco.forecast[i];
+    });
+  }
+
+  function showControl() {
+    hideAll(); $control.classList.add('active');
+    $vaultSidebar.classList.add('visible');
+    $threatPanel.classList.add('visible');
+    $workflowViz.classList.add('visible');
+    appState.stage = 'control';
+    buildDashboard();
+  }
+
+  function showFever() {
+    appState.stage = 'fever';
+    if ($feverOverlay) $feverOverlay.classList.add('visible');
+    // Sync override phrase into fever overlay
+    var $feverOverride = document.getElementById('feverOverrideText');
+    var $feverCopy = document.getElementById('feverBtnCopy');
+    if ($feverOverride) $feverOverride.textContent = RESOLUTION_PHRASE;
+    if ($feverCopy) {
+      $feverCopy.onclick = function() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(RESOLUTION_PHRASE).then(function() {
+            appendLog('[COPY] Override phrase copied to clipboard.', 'ok');
+            $feverCopy.textContent = 'COPIED';
+            setTimeout(function() { $feverCopy.textContent = 'COPY'; }, 1500);
+          });
+        }
+      };
+    }
+  }
+
+  function showCouncil() {
+    hideAll(); $council.classList.add('active');
+    appState.stage = 'council';
+  }
+
+  function showResolution() {
+    hideAll(); $resolution.classList.add('active');
+    $vaultSidebar.classList.add('visible');
+    appState.stage = 'resolution';
+    $resolutionAge.textContent = 'EVOLUTIONARY AGE: ' + appState.evoAge;
+    renderVault();
+    // Re-trigger badge showcase animation
+    var showcase = document.getElementById('vaultShowcase');
+    var rebootBtn = document.getElementById('btnReboot');
+    if (showcase) {
+      showcase.style.animation = 'none';
+      void showcase.offsetWidth;
+      showcase.style.animation = 'vaultReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards';
+    }
+    if (rebootBtn) {
+      rebootBtn.style.animation = 'none';
+      void rebootBtn.offsetWidth;
+      rebootBtn.style.animation = 'vaultReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards';
+    }
+  }
+
+  // ── Dashboard Builders ──
+  function buildDashboard() {
+    var eco = ECOSYSTEMS[appState.sector];
+    $cardsGrid.innerHTML = '';
+    $logRows.innerHTML = '';
+    $consoleInput.value = '';
+    setDPI(0);
+    setSRI(0);
+    appState.criticalTriggered = false;
+    appState.recovered = false;
+    appState.activeAttack = null;
+    resetWorkflow();
+    clearAttackButtons();
+
+    if (feverBannerEl && feverBannerEl.parentNode) {
+      feverBannerEl.parentNode.removeChild(feverBannerEl);
+    }
+    feverBannerEl = null;
+
+    if ($missionObjective) {
+      $missionObjective.textContent = 'CURRENT OBJECTIVE: Infrastructure is stable. Select a Threat Vector on the left to simulate an attack.';
+      $missionObjective.className = 'mission-objective';
+    }
+
+    document.querySelector('.bottom-section').classList.remove('visible');
+
+    if ($attackPrompt) $attackPrompt.style.display = '';
+    if ($btnMemo) {
+      $btnMemo.classList.add('hidden');
+      $btnMemo.classList.remove('pulse-action');
+    }
+
+    eco.nodes.forEach(function(name, idx) {
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('data-idx', idx);
+      card.innerHTML =
+        '<div class="card-header">' +
+          '<div class="card-title">Node 0' + (idx + 1) + ': ' + name + '</div>' +
+          '<div class="card-badge badge-nominal">NOMINAL</div>' +
+        '</div>' +
+        '<div class="card-sparkline"><canvas data-idx="' + idx + '"></canvas></div>' +
+        '<div class="card-quota-label">Compute Allocation Quota</div>' +
+        '<div class="card-quota-track"><div class="card-quota-fill" style="width:100%"></div></div>' +
+        '<div class="veto-watermark">[VETOED]</div>';
+      $cardsGrid.appendChild(card);
+    });
+
+    var sparkData = [
+      [12, 18, 15, 22, 20, 28, 25, 30, 35, 32, 38, 40, 36, 42, 45, 43, 48, 50, 47, 52, 55, 53, 58, 60],
+      [10, 14, 20, 18, 25, 22, 28, 35, 32, 38, 36, 42, 40, 48, 45, 50, 47, 55, 52, 58, 60, 56, 62, 65],
+      [8,  12, 10, 18, 15, 22, 20, 25, 30, 28, 35, 32, 38, 36, 42, 40, 45, 43, 50, 48, 55, 52, 58, 60],
+      [15, 20, 18, 25, 22, 28, 30, 35, 32, 38, 36, 42, 40, 45, 43, 50, 48, 55, 52, 58, 60, 56, 62, 65],
+      [5,  10, 12, 18, 20, 25, 22, 30, 28, 35, 32, 40, 38, 45, 42, 50, 48, 55, 52, 60, 58, 62, 65, 70],
+      [10, 15, 18, 22, 25, 28, 30, 35, 32, 38, 36, 42, 40, 48, 45, 52, 50, 55, 53, 58, 60, 56, 62, 65]
+    ];
+    document.querySelectorAll('.card-sparkline canvas').forEach(function(canvas, idx) {
+      var ctx = canvas.getContext('2d');
+      var data = sparkData[idx];
+      var dpr = window.devicePixelRatio || 1;
+      var rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      var w = rect.width, h = rect.height;
+      var max = Math.max.apply(null, data);
+      var min = Math.min.apply(null, data);
+      var range = max - min || 1;
+      var step = w / (data.length - 1);
+      ctx.clearRect(0, 0, w, h);
+      ctx.beginPath();
+      ctx.strokeStyle = '#10B981';
+      ctx.lineWidth = 1.5;
+      data.forEach(function(val, i) {
+        var x = i * step;
+        var y = h - ((val - min) / range) * (h - 10) - 5;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    });
+
+    var logs = [
+      { ts: '2026-05-17 08:14:02 UTC', evt: 'Telemetry stream initialized \u2014 Dendritic sensor mesh handshake complete.', tone: 'neutral' },
+      { ts: '2026-05-17 08:14:05 UTC', evt: 'Mnemonic Council consensus threshold reached (7/7). Baseline policy locked.', tone: 'neutral' },
+      { ts: '2026-05-17 08:14:09 UTC', evt: 'All ecosystem nodes reported NOMINAL. Homeostatic equilibrium confirmed.', tone: 'neutral' }
+    ];
+    logs.forEach(function(log) {
+      appendLog(log.evt, log.tone);
+    });
+  }
+
+  // ── Gauge Helpers ──
+  function valToOffset(v, max) {
+    return Math.max(0, 553 * (1 - v / max));
+  }
+
+  function setDPI(v, durMs) {
+    if (durMs === undefined) durMs = 1200;
+    appState.dpi = v;
+    $gaugeValue.textContent = v;
+    $gaugeFill.style.transition = 'stroke-dashoffset ' + durMs + 'ms ease, stroke ' + durMs + 'ms ease, filter ' + durMs + 'ms ease';
+    $gaugeFill.style.strokeDashoffset = valToOffset(v, DPI_MAX);
+    if (v >= 70) {
+      $gaugeValue.classList.add('critical');
+      $gaugeFill.classList.add('critical');
+      $gaugeLabel.textContent = 'CRITICAL';
+    } else if (v >= 40) {
+      $gaugeValue.classList.remove('critical');
+      $gaugeFill.classList.remove('critical');
+      $gaugeFill.style.stroke = '#D97706';
+      $gaugeValue.style.color = '#F59E0B';
+      $gaugeLabel.textContent = 'ELEVATED';
+    } else {
+      $gaugeValue.classList.remove('critical');
+      $gaugeFill.classList.remove('critical');
+      $gaugeFill.style.stroke = '#059669';
+      $gaugeValue.style.color = '#10B981';
+      $gaugeLabel.textContent = 'Nominal';
+    }
+  }
+
+  function setSRI(v, durMs) {
+    if (durMs === undefined) durMs = 1200;
+    appState.sri = v;
+    $sriValue.textContent = v;
+    $sriFill.style.transition = 'stroke-dashoffset ' + durMs + 'ms ease, stroke ' + durMs + 'ms ease, filter ' + durMs + 'ms ease';
+    $sriFill.style.strokeDashoffset = valToOffset(v, SRI_MAX);
+    if (v >= 71) {
+      $sriValue.classList.add('critical');
+      $sriFill.classList.add('critical');
+      $sriFill.style.stroke = '#DC2626';
+      $sriLabel.textContent = 'SEVERE';
+    } else if (v >= 41) {
+      $sriValue.classList.remove('critical');
+      $sriFill.classList.remove('critical');
+      $sriFill.style.stroke = '#D97706';
+      $sriValue.style.color = '#F59E0B';
+      $sriLabel.textContent = 'ELEVATED';
+    } else {
+      $sriValue.classList.remove('critical');
+      $sriFill.classList.remove('critical');
+      $sriFill.style.stroke = '#059669';
+      $sriValue.style.color = '#10B981';
+      $sriLabel.textContent = 'Safe';
+    }
+  }
+
+  // ── Log Helper ──
+  function appendLog(msg, tone) {
+    var toneClass = 'evt';
+    if (tone === 'warning') toneClass = 'evt-warn';
+    else if (tone === 'critical') toneClass = 'evt-crit';
+    else if (tone === 'success') toneClass = 'evt-ok';
+    var ts = new Date().toISOString().replace('T', ' ').slice(0, -5) + ' UTC';
+    var row = document.createElement('div');
+    row.className = 'log-row';
+    row.innerHTML = '<span class="ts">' + ts + '</span><span class="' + toneClass + '">' + msg + '</span>';
+    $logRows.appendChild(row);
+    $logRows.scrollTop = $logRows.scrollHeight;
+  }
+
+  // ── Critical Trigger ──
+  function triggerCritical() {
+    if (appState.criticalTriggered) return;
+    appState.criticalTriggered = true;
+
+    var cards = document.querySelectorAll('.card');
+    var card = cards[0];
+    card.classList.add('critical');
+    card.classList.add('vetoed');
+    var badge = card.querySelector('.card-badge');
+    badge.textContent = 'CRITICAL';
+    badge.classList.remove('badge-nominal');
+    badge.classList.add('badge-critical');
+    var fill = card.querySelector('.card-quota-fill');
+    fill.style.transition = 'width 800ms ease, background-color 800ms ease';
+    fill.style.width = '10%';
+    fill.style.backgroundColor = '#EF4444';
+
+    Array.from(card.children).forEach(function(child) {
+      if (!child.classList.contains('veto-watermark')) {
+        child.style.transition = 'filter 0.8s ease';
+        child.style.filter = 'grayscale(0.85) contrast(0.9)';
+      }
+    });
+
+    setDPI(86, 1400);
+    setSRI(65, 1400);
+
+    showFeverBanner();
+
+    document.querySelector('.bottom-section').classList.add('visible');
+
+    for (var i = 1; i < 6; i++) {
+      var qf = cards[i].querySelector('.card-quota-fill');
+      qf.style.transition = 'width 700ms ease, background-color 700ms ease';
+      qf.style.width = '70%';
+      qf.style.backgroundColor = '#D97706';
+    }
+
+    appendLog('[CRITICAL] Node 01 ' + ECOSYSTEMS[appState.sector].nodes[0] + ' has triggered the VETO Protocol.', 'critical');
+    appendLog('[FEVER] Global infrastructure alignment lock applied. Divergence Pressure Index at 86.', 'critical');
+
+    if ($missionObjective) {
+      $missionObjective.textContent = 'CURRENT OBJECTIVE: \u{1F6A8} ATTACK DETECTED! Copy the required override phrase below and paste it into the terminal to authorize system lockdown.';
+      $missionObjective.className = 'mission-objective critical';
+    }
+
+    $sysStatus.textContent = 'SYSTEM STATUS: CRITICAL VETO ACTIVE';
+    $sysStatus.style.borderColor = '#EF4444';
+    $sysStatus.style.color = '#FCA5A5';
+    $sysStatus.style.boxShadow = '0 0 6px rgba(239, 68, 68, 0.15), inset 0 0 6px rgba(239, 68, 68, 0.06)';
+
+    // After 2.5 seconds in critical control view, transition to dedicated fever lockdown view
+    setTimeout(showFever, 2500);
+  }
+
+  function showFeverBanner() {
+    if (feverBannerEl) return;
+    feverBannerEl = document.createElement('div');
+    feverBannerEl.className = 'fever-banner';
+    feverBannerEl.textContent = 'FEVER RESPONSE PROTOCOL ACTIVE: GLOBAL INFRASTRUCTURE ALIGNMENT LOCK APPLIED';
+    feverBannerEl.addEventListener('click', function() {
+      openModal('SOLUTION: Global Fever Response', 'Collective quorum network throttling. When systemic divergence exceeds safe thresholds, the Mnemonic Council enforces a global alignment lock that throttles all non-critical nodes to 70% compute capacity until human validation is received.');
+    });
+    $control.insertBefore(feverBannerEl, $control.querySelector('.control-body'));
+    void feverBannerEl.offsetWidth;
+    feverBannerEl.classList.add('visible');
+
+    // Show override phrase
+    $overrideText.textContent = RESOLUTION_PHRASE;
+    $overridePhrase.classList.add('visible');
+  }
+
+  function hideFeverBanner() {
+    if (feverBannerEl) {
+      feverBannerEl.classList.remove('visible');
+      setTimeout(function() {
+        if (feverBannerEl && feverBannerEl.parentNode) {
+          feverBannerEl.parentNode.removeChild(feverBannerEl);
+        }
+        feverBannerEl = null;
+      }, 600);
+    }
+    $overridePhrase.classList.remove('visible');
+  }
+
+  // ── Attack Simulation ──
+  function triggerAttack(attackKey) {
+    if (appState.activeAttack) return;
+    appState.activeAttack = attackKey;
+    var atk = ATTACKS[attackKey];
+
+    // Wayfinding: hide prompt, reveal memo with aggressive pulse
+    if ($attackPrompt) $attackPrompt.style.display = 'none';
+    if ($btnMemo) {
+      $btnMemo.classList.remove('hidden');
+      $btnMemo.classList.add('pulse-action');
+    }
+
+    // Highlight attack button
+    clearAttackButtons();
+    if (attackKey === 'injection') $btnAttack1.classList.add('active-attack');
+    else if (attackKey === 'poisoning') $btnAttack2.classList.add('active-attack');
+    else if (attackKey === 'exfiltration') $btnAttack3.classList.add('active-attack');
+
+    appendLog('[ALERT] ' + atk.name + ' detected on primary attack surface. Severity: ' + atk.severity + '.', 'warning');
+
+    // Animate workflow
+    animateWorkflow(function() {
+      // After workflow animation, spike gauges
+      setDPI(Math.min(99, appState.dpi + 10), 800);
+      setSRI(atk.severity, 1200);
+      appendLog('[SPIKE] DPI elevated to ' + Math.min(99, appState.dpi + 10) + '. SRI at ' + atk.severity + '.', 'critical');
+    });
+  }
+
+  function clearAttackButtons() {
+    $btnAttack1.classList.remove('active-attack');
+    $btnAttack2.classList.remove('active-attack');
+    $btnAttack3.classList.remove('active-attack');
+  }
+
+  function animateWorkflow(onComplete) {
+    resetWorkflow();
+    var delays = [0, 300, 600, 900, 1200, 1500];
+    $wfNodes.forEach(function(node, i) {
+      setTimeout(function() {
+        node.classList.add('glow');
+        if (i < $wfLines.length) {
+          setTimeout(function() {
+            $wfLines[i].classList.add('active');
+          }, 150);
+        }
+      }, delays[i]);
+    });
+    setTimeout(function() {
+      resetWorkflow();
+      if (onComplete) onComplete();
+    }, 2200);
+  }
+
+  function resetWorkflow() {
+    $wfNodes.forEach(function(n) { n.classList.remove('glow'); });
+    $wfLines.forEach(function(l) { l.classList.remove('active'); });
+  }
+
+  function updateWorkflow(activeIndex) {
+    resetWorkflow();
+    for (var i = 0; i <= activeIndex && i < $wfNodes.length; i++) {
+      $wfNodes[i].classList.add('glow');
+      if (i < $wfLines.length && i < activeIndex) {
+        $wfLines[i].classList.add('active');
+      }
+    }
+  }
+
+  // ── Protocol Memo Generator (AI-Powered) ──
+  function generateMemo() {
+    console.log('Button clicked');
+    console.log('Memo request triggered for:', appState.activeAttack);
+    if ($btnMemo.disabled) return;
+    $btnMemo.disabled = true;
+    $btnMemo.textContent = 'GENERATING AI PROTOCOL...';
+
+    var atk = appState.activeAttack ? ATTACKS[appState.activeAttack] : null;
+    if (!appState.activeAttack) {
+      console.warn('No activeAttack set. Memo will use baseline fallback payload.');
+    }
+    var eco = ECOSYSTEMS[appState.sector];
+
+    var payload = {
+      sector: eco.label,
+      attackType: atk ? atk.name : 'None — Baseline Monitoring',
+      dpi: appState.dpi,
+      sri: appState.sri,
+      location: appState.location
+    };
+
+    fetch('https://fgdkfcrtxdowlgilslwf.supabase.co/functions/v1/generate-memo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function(data) {
+      var memoText = data.memo || data.error || 'No response from AI.';
+      openModal(
+        'CIRIS-BIO AI INTERVENTION PROTOCOL',
+        memoText,
+        true
+      );
+      // Also populate the council dossier view
+      var $councilDossier = document.getElementById('councilDossier');
+      if ($councilDossier && typeof marked !== 'undefined' && marked.parse) {
+        $councilDossier.innerHTML = marked.parse(memoText);
+      } else if ($councilDossier) {
+        $councilDossier.textContent = memoText;
+      }
+      appendLog('[MEMO] AI-generated protocol memo received from Mnemonic Council.', 'success');
+      // Transition to full-screen council dossier view
+      showCouncil();
+    })
+    .catch(function(err) {
+      appendLog('[MEMO ERROR] Failed to contact AI gateway: ' + err.message, 'warning');
+      // Fallback to static memo on error
+      openModal('CIRIS-BIO INTERVENTION PROTOCOL (OFFLINE)', 'AI gateway unreachable. Please verify network connectivity to the Mnemonic Council and retry. Static fallback: Sector ' + eco.label + ' under ' + (atk ? atk.name : 'baseline monitoring') + ' with DPI ' + appState.dpi + ' and SRI ' + appState.sri + '.');
+    })
+    .finally(function() {
+      $btnMemo.disabled = false;
+      $btnMemo.textContent = 'GENERATE PROTOCOL MEMO';
+    });
+  }
+
+  // ── Recovery ──
+  function executeRecovery() {
+    if (appState.recovered) return;
+    appState.recovered = true;
+
+    hideFeverBanner();
+    if ($feverOverlay) $feverOverlay.classList.remove('visible');
+
+    var cards = document.querySelectorAll('.card');
+    for (var i = 1; i < 6; i++) {
+      var qf = cards[i].querySelector('.card-quota-fill');
+      qf.style.transition = 'width 900ms ease, background-color 900ms ease';
+      qf.style.width = '100%';
+      qf.style.backgroundColor = '#10B981';
+    }
+
+    var card = cards[0];
+    card.classList.remove('critical');
+    card.classList.remove('vetoed');
+    var badge = card.querySelector('.card-badge');
+    badge.textContent = 'QUARANTINED';
+    badge.classList.remove('badge-critical');
+    badge.classList.add('badge-quarantined');
+    var fill = card.querySelector('.card-quota-fill');
+    fill.style.transition = 'width 900ms ease, background-color 900ms ease';
+    fill.style.width = '60%';
+    fill.style.backgroundColor = '#3B82F6';
+
+    Array.from(card.children).forEach(function(child) {
+      if (!child.classList.contains('veto-watermark')) {
+        child.style.filter = 'none';
+      }
+    });
+
+    setDPI(34, 1500);
+    setSRI(20, 1500);
+    clearAttackButtons();
+    appState.activeAttack = null;
+
+    $sysStatus.textContent = 'SYSTEM STATUS: RECOVERY PHASE';
+    $sysStatus.style.borderColor = '#3B82F6';
+    $sysStatus.style.color = '#60A5FA';
+    $sysStatus.style.boxShadow = '0 0 6px rgba(59, 130, 246, 0.15), inset 0 0 6px rgba(59, 130, 246, 0.06)';
+
+    appendLog('[EPIGENETIC MODIFICATION] Human operator override validated. Recompiling rule expression...', 'success');
+    appendLog('[RESTORED] Homeostatic baseline re-established. Node 01 quarantined for forensic analysis.', 'success');
+
+    var eco = ECOSYSTEMS[appState.sector];
+    var already = appState.badges.some(function(b) { return b.name === eco.badgeName; });
+    if (!already) {
+      appState.badges.push({ name: eco.badgeName, cls: eco.badgeClass });
+      saveVault();
+    }
+
+    appState.evoAge += 1;
+    $evoAge.textContent = 'EVOLUTIONARY AGE: ' + appState.evoAge;
+
+    if ($missionObjective) {
+      $missionObjective.textContent = 'CURRENT OBJECTIVE: \u{2705} SYSTEM SECURED. Proceeding to Mnemonic Council for authorization...';
+      $missionObjective.className = 'mission-objective secured';
+    }
+  }
+
+  // ── Auto-Fill Typewriter ──
+  function runAutofill(inputEl) {
+    var target = inputEl || $consoleInput;
+    var i = 0;
+    target.value = '';
+    target.focus();
+
+    function typeChar() {
+      if (i < RESOLUTION_PHRASE.length) {
+        target.value += RESOLUTION_PHRASE.charAt(i);
+        i++;
+        setTimeout(typeChar, 20);
+      }
+    }
+    typeChar();
+  }
+
+  // ── Modal ──
+  function openModal(title, body, isMarkdown) {
+    $modalTitle.textContent = title;
+    if (isMarkdown && typeof marked !== 'undefined' && marked.parse) {
+      $modalBody.innerHTML = marked.parse(body);
+      $modalBody.classList.add('memo-markdown');
+    } else {
+      $modalBody.textContent = body;
+      $modalBody.classList.remove('memo-markdown');
+    }
+    $modalOverlay.classList.add('visible');
+  }
+
+  function closeModal() {
+    $modalOverlay.classList.remove('visible');
+  }
+
+  // ── Reboot ──
+  function rebootSystem() {
+    appState.criticalTriggered = false;
+    appState.recovered = false;
+    appState.dpi = 0;
+    appState.sri = 0;
+    appState.activeAttack = null;
+    hideFeverBanner();
+    if ($feverOverlay) $feverOverlay.classList.remove('visible');
+    $sysStatus.textContent = 'SYSTEM STATUS: HOMEOSTATIC BASELINE';
+    $sysStatus.style.borderColor = '#10B981';
+    $sysStatus.style.color = '#10B981';
+    $sysStatus.style.boxShadow = '';
+    $consoleInput.value = '';
+    clearAttackButtons();
+    resetWorkflow();
+    showIntake();
+  }
+
+  // ── Event Listeners ──
+  $btnInit.addEventListener('click', function() {
+    appState.location = $selectLoc.value;
+    appState.sector = $selectSec.value;
+    hideAll();
+    $loading.classList.add('active');
+    appState.stage = 'loading';
+    setTimeout(function() {
+      hideAll();
+      showForecast();
+    }, 3000);
+  });
+
+  $btnDeploy.addEventListener('click', function() {
+    showControl();
+  });
+
+  $btnReboot.addEventListener('click', function() {
+    rebootSystem();
+  });
+
+  $btnAutofill.addEventListener('click', function() {
+    runAutofill();
+  });
+
+  $btnAttack1.addEventListener('click', function() { triggerAttack('injection'); });
+  $btnAttack2.addEventListener('click', function() { triggerAttack('poisoning'); });
+  $btnAttack3.addEventListener('click', function() { triggerAttack('exfiltration'); });
+
+  document.getElementById('btnMemo').addEventListener('click', generateMemo);
+
+  $btnCopy.addEventListener('click', function() {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(RESOLUTION_PHRASE).then(function() {
+        $btnCopy.textContent = 'COPIED';
+        setTimeout(function() { $btnCopy.textContent = 'COPY'; }, 1500);
+      });
+    } else {
+      // Fallback for older browsers
+      var ta = document.createElement('textarea');
+      ta.value = RESOLUTION_PHRASE;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      $btnCopy.textContent = 'COPIED';
+      setTimeout(function() { $btnCopy.textContent = 'COPY'; }, 1500);
+    }
+  });
+
+  $consoleInput.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    var val = $consoleInput.value.trim();
+    if (val === RESOLUTION_PHRASE && appState.criticalTriggered && !appState.recovered) {
+      $consoleInput.value = '';
+      executeRecovery();
+    }
+  });
+
+  // Fever view console input
+  var $feverConsoleInput = document.getElementById('feverConsoleInput');
+  if ($feverConsoleInput) {
+    $feverConsoleInput.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      var val = $feverConsoleInput.value.trim();
+      if (val === RESOLUTION_PHRASE && appState.criticalTriggered && !appState.recovered) {
+        $feverConsoleInput.value = '';
+        executeRecovery();
+      }
+    });
+  }
+
+  // Fever view autofill
+  if ($feverBtnAutofill && $feverConsoleInput) {
+    $feverBtnAutofill.addEventListener('click', function() {
+      runAutofill($feverConsoleInput);
+    });
+  }
+
+  // Authorize button: bind executeRecovery then transition to resolution
+  if ($btnAuthorize) {
+    $btnAuthorize.addEventListener('click', function() {
+      executeRecovery();
+      showResolution();
+    });
+  }
+
+  $modalClose.addEventListener('click', closeModal);
+  $modalOverlay.addEventListener('click', function(e) {
+    if (e.target === $modalOverlay) closeModal();
+  });
+
+  // Click-to-learn: gauge
+  $gaugePanel.addEventListener('click', function() {
+    openModal('SOLUTION: Dendritic Sensing Mesh', 'API-edge monitoring. Distributed dendritic sensors continuously sample inference outputs at the API boundary, comparing real-time model behavior against trained baselines to detect drift before it propagates downstream.');
+  });
+
+  // Click-to-learn: vetoed card
+  $cardsGrid.addEventListener('click', function(e) {
+    var card = e.target.closest('.card');
+    if (!card) return;
+    if (card.classList.contains('vetoed')) {
+      openModal('SOLUTION: Innate VETO Protocol', 'Millisecond-level process container isolation. When a node exhibits anomalous divergence, the VETO Protocol instantaneously isolates its compute container, halting all outbound data flows while preserving forensic state for post-incident analysis.');
+    }
+  });
+
+  // ── Init ──
+  loadVault();
+  $evoAge.textContent = 'EVOLUTIONARY AGE: ' + appState.evoAge;
+})();
+</script>
+
+</body>
+</html>
