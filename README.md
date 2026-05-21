@@ -1,29 +1,39 @@
 # CIRIS-BIO: Adaptive Immune Defense for AI Infrastructure
 
-CIRIS-BIO is a bio-inspired, autonomous governance platform designed to detect, contain, and evolve infrastructure defenses against critical AI system failures and "drift."
+[![Status: Prototype](https://img.shields.io/badge/status-active-brightgreen.svg)]()
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)]()
+
+CIRIS-BIO is a bio-inspired, autonomous governance platform designed to detect, contain, and evolve infrastructure defenses against critical AI system failures and "drift." It functions as an **Active Immune System** for AI-governed municipal and national infrastructure.
+
+---
 
 ## 🌐 The Mission
-As autonomous agents are increasingly deployed within critical national infrastructure, the risk of **"AI Drift"** becomes an existential threat. Current monitoring tools are static and reactive. CIRIS-BIO shifts the paradigm, treating AI infrastructure not as a static machine, but as a living organism capable of autonomous immune responses.
+As autonomous agents are increasingly deployed within critical infrastructure—from power grids to logistics networks—traditional firewalls are insufficient. We need **computational governance** that operates at the speed of the systems it protects. CIRIS-BIO treats infrastructure not as a static machine, but as a living organism capable of autonomous, homeostatic responses.
 
 ## 🚀 Key Features
 
 * **Dendritic Scanning:** Real-time telemetry monitoring for pathogenic drift.
-* **The Fever State:** An automated, localized lockdown mechanism that halts cascading failures while preserving sector stability.
-* **Mnemonic Council:** An LLM-based governance layer that generates context-aware "Epigenetic Modification" protocols in real-time.
-* **Sovereign Antibody Vault:** Cryptographic archiving of defense signatures, ensuring the infrastructure evolves to become permanently immune to previous attack vectors.
+* **The Fever State:** Automated, localized lockdown mechanism to prevent cascading failure.
+* **Mnemonic Council:** Autonomous governance layer utilizing Gemini-driven protocols for context-aware "Epigenetic Modifications."
+* **Sovereign Antibody Vault:** Cryptographic archiving of defense signatures for permanent immunity against known threat vectors.
+
+---
 
 ## 🛠️ Technical Architecture
 
-CIRIS-BIO utilizes a sovereign-first approach to AI safety:
+CIRIS-BIO is built upon the **Sovereign AI Safety Stack (SASS)**:
 
-* **Frontend:** Custom fluid-adaptive architecture using CSS Grid/Clamp for native resolution-aware rendering.
-* **Governance Layer:** Supabase Edge Functions integrated with Google Gemini API for protocol generation.
-* **State Machine:** A resilient, session-aware UI state machine that handles complex transitions from "Baseline" to "Fever" to "Resolution."
-* **Telemetry:** Real-time Divergence Pressure Index (DPI) calculation to predict systemic risk.
+* **Frontend:** Fluid-adaptive state machine using CSS Grid/Clamp for native, resolution-aware rendering.
+* **Governance Layer:** Supabase Edge Functions integrated with Google Gemini API.
+* **Telemetry:** Real-time **Divergence Pressure Index (DPI)** calculation. 
+    * *The governance threshold triggers intervention when:*
+    $$D_p \times R_c > \text{Threshold}_{\text{Governance}}$$
+    *(Where $D_p$ is Divergence Pressure and $R_c$ is Cascade Risk).*
 
-## 📈 The Governance Workflow
+---
 
-The system operates through a 6-Act Cinematic Workflow:
+## 📈 The 6-Act Cinematic Workflow
+
 1. **Dendritic Initialization:** Deep scanning of infrastructure telemetry.
 2. **Pathogenic Forecast:** Identifying "drift" before an attack executes.
 3. **Fever State Activation:** Autonomous isolation of infected nodes.
@@ -31,15 +41,13 @@ The system operates through a 6-Act Cinematic Workflow:
 5. **Epigenetic Override:** Human-in-the-loop governance gate.
 6. **Sovereign Antibody Vault:** Threat neutralization and evolutionary archiving.
 
-## 💻 Setup & Local Development
-
-1. Ensure you have your project files locally.
-2. Rename the `index` file to `index.html`.
-3. Open the folder in VS Code.
-4. Serve the `index.html` file using any standard Live Server extension.
-
-## 🌍 Global Impact
-CIRIS-BIO serves as a functional blueprint for **computational governance**. It demonstrates how international regulatory bodies can move from "regulatory guidance" to "automated infrastructure resilience," bridging the gap between high-level AI ethics and machine-speed operational safety.
-
 ---
-*Built as a sovereign AI safety stack for hackathons and infrastructure resilience initiatives.*
+
+## 📂 Repository Structure
+
+```text
+/
+├── index.html          # Main Application Entry Point
+├── tasks/              # Backend logic and task automation scripts
+├── .skills/            # Adaptive governance metadata and assets
+└── README.md           # Documentation
